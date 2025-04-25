@@ -1,2 +1,3 @@
-# Personal Blog
-- https://mduchev.vercel.app
+# Author: Martin Duchev
+* Personal blog post
+* https://mduchev.vercel.app
