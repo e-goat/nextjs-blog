@@ -34,7 +34,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
                             <div className="flex items-center justify-between">
                                 <section className="flex items-center gap-4">
                                     <ModeToggle />
-                                    <Link href="https://github.com/e-goat" target="_blank">
+                                    <Link
+                                        href="https://github.com/e-goat"
+                                        target="_blank"
+                                    >
                                         <GitHubIcon />
                                     </Link>
                                 </section>
