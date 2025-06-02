@@ -1,13 +1,13 @@
 ---
-title: Containerizing a Laravel App with Node.js, Vite, and Hot Module Reloading
-description: Learn how to containerize your Laravel app with Docker, enable Vite's HMR, and create a seamless local development workflow.
+title: Docker with PHP and Vite HMR
+description: Learn how to containerize your Laravel app with Docker, enable Vite's HMR and create a seamless local development workflow
 author: Martin Duchev
 date: "2025-05-13"
 ---
 
 <Image src="/blog-image-1.webp" width="718" height="404" alt="Image" />
 
-## 🚀 Introduction
+## Introduction
 
 Modern Laravel apps benefit from tools like **Vite** for frontend bundling and **Docker** for isolated development environments. In this guide, we’ll containerize a Laravel project named `yourapp` with:
 
@@ -37,7 +37,7 @@ We'll assume the following Docker context:
 ├── vite.config.js
 └── ...
 ```
-## 🐳 Node.js Container for Vite
+## NodeJS Container for Vite
 
 We start with a lightweight `node:20` container to serve Vite's development server:
 
@@ -52,7 +52,7 @@ CMD ["npm", "run", "dev"]
 
 This exposes Vite’s dev server on port `5173`, which is mapped in `docker-compose.yml`.
 
-## 🐘 PHP (Laravel) Container
+## PHP (Laravel) Container
 Our Laravel container is based on `php:8.3-rc-apache-buster` and includes PHP extensions and Node.js 20:
 
 ```Dockerfile title="docker/php/Dockerfile"
@@ -109,7 +109,7 @@ USER www-data
 ```
 This container handles Laravel, PHP-FPM, and Apache.
 
-## 🧩 Docker Compose Setup
+## Docker Compose Setup
 Here's how it all connects:
 ``` docker-compose.yml title="docker-compose.yml"
 services:
@@ -181,30 +181,7 @@ volumes:
     driver: local
 ```
 
-## 🔥 Configuring Vite for Hot Module Reload (HMR)
-Inside `vite.config.js`, make sure your Vite dev server is accessible from Docker and uses the correct HMR settings:
-```js title="vite.config.js"
-export default {
-  server: {
-    host: '0.0.0.0',
-    port: 5173,
-    strictPort: true,
-    hmr: {
-      host: 'localhost',
-      port: 5173,
-    },
-  },
-  ...
-}
-```
-
-Also update your `.env`:
-```
-APP_URL=http://localhost
-VITE_DEV_SERVER_URL=http://localhost:5173
-```
-
-## 🧪 Running Everything
+## Running Everything
 1. Copy `.env.example` to `.env` and configure DB credentials.
 2. Assuming Docker compose is installed, run:
 ```bash
@@ -256,14 +233,14 @@ APP_URL=http://localhost
 VITE_DEV_SERVER_URL=http://localhost:5173
 ```
 
-## ✅ Result
+## Result
 Now, when you run:
 ```bash
 docker compose up --build
 ```
 Vite serves assets separately via HMR, and Laravel’s Blade templates inject the development URLs correctly. Frontend updates reflect instantly in the browser without full-page reloads.
 
-## 🧹 Final Notes
+## Final Notes
 - Ensure your Laravel app loads assets via `@vite` directives or `asset()` method.
 - Set `APP_ENV=local` and `APP_DEBUG=true` in `.env`
 - Node/Vite server is separate and doesn't serve backend routes — it handles JS/CSS hot reload only.
