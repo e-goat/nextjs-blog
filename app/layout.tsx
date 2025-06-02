@@ -4,8 +4,8 @@ import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Analytics } from "@/components/analytics"
 import { ModeToggle } from "@/components/mode-toggle"
+import { GitHubIcon } from "@/components/github-icon"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { FaGithub } from "react-icons/fa6";
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -34,7 +34,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
                             <div className="flex items-center justify-between">
                                 <section className="flex items-center gap-4">
                                     <ModeToggle />
-                                    <Link href="https://github.com/e-goat" target="_blank"><FaGithub size={24} /></Link>
+                                    <Link href="https://github.com/e-goat" target="_blank">
+                                        <GitHubIcon />
+                                    </Link>
                                 </section>
                                 <nav className="ml-auto text-sm font-medium space-x-6">
                                     <Link href="/">Home</Link>
