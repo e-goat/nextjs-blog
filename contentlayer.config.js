@@ -1,4 +1,5 @@
 import { defineDocumentType, makeSource } from "contentlayer/source-files"
+import { env } from "process"
 import rehypeHighlight from "rehype-highlight"
 import rehypeSlug from "rehype-slug"
 
@@ -60,11 +61,6 @@ export default makeSource({
                 rehypeHighlight,
                 {
                     ignoreMissing: true,
-                    aliases: {
-                        js: "javascript",
-                        ts: "typescript",
-                        php: "php",
-                    },
                 },
             ],
         ],

@@ -1,13 +1,15 @@
 import Link from "next/link"
 import "./globals.css"
-import { Inter } from "next/font/google"
+import localFont from 'next/font/local'
 import { ThemeProvider } from "@/components/theme-provider"
 import { Analytics } from "@/components/analytics"
 import { ModeToggle } from "@/components/mode-toggle"
 import { GitHubIcon } from "@/components/github-icon"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
-const inter = Inter({ subsets: ["latin"] })
+const fonts_jetbrains = localFont({
+  src: './webfonts/JetBrainsMono-Bold.woff2',
+})
 
 export const metadata = {
     title: "Martin Duchev",
@@ -22,7 +24,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     return (
         <html lang="en">
             <body
-                className={`antialiased min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 ${inter.className}`}
+                className={`antialiased min-h-screen bg-white dark:bg-indigo-950 text-slate-900 dark:text-slate-50 ${fonts_jetbrains.className}`}
             >
                 <ThemeProvider
                     attribute="class"

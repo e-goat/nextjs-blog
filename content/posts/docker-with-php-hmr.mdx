@@ -24,7 +24,7 @@ By the end, you'll have a working setup where Laravel runs in one container, Nod
 
 We'll assume the following Docker context:
 
-```
+```Dockerfile
 /yourapp
 ├── docker
 │ ├── node
@@ -117,7 +117,7 @@ This container handles Laravel, PHP-FPM, and Apache.
 
 Here's how it all connects:
 
-```docker-compose.yml title="docker-compose.yml"
+```yml title="docker-compose.yml"
 services:
   yourapp.develop:
     build:
@@ -241,7 +241,7 @@ This config ensures:
 
 `.env` tweaks: Make sure you tell Laravel and Vite where the dev server is:
 
-```
+```env
 APP_URL=http://localhost
 VITE_DEV_SERVER_URL=http://localhost:5173
 ```
