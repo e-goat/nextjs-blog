@@ -42,8 +42,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
                                     </Link>
                                 </section>
                                 <nav className="ml-auto text-sm font-medium space-x-6">
-                                    <Link href="/">Home</Link>
-                                    <Link href="/about">About me</Link>
+                                    <Link
+                                        href="/"
+                                        className="hover:text-blue-500 transition-colors"
+                                    >
+                                        Home
+                                    </Link>
+                                    <Link
+                                        href="/about"
+                                        className="hover:text-blue-500 transition-colors"
+                                    >
+                                        About me
+                                    </Link>
                                 </nav>
                             </div>
                         </header>

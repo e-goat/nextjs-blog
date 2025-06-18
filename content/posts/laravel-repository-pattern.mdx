@@ -4,10 +4,10 @@ description: Learn how to implement the Repository Pattern in modern Laravel for
 author: Martin Duchev
 date: "2025-06-02"
 tags:
-  - Laravel
-  - Repository Pattern
-  - Clean Code
-  - PHP
+    - Laravel
+    - Repository Pattern
+    - Clean Code
+    - PHP
 ---
 
 ## Understanding the Repository Pattern
@@ -27,21 +27,22 @@ class ArticleController extends Controller
             ->with('author', 'tags')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-        
+
         return view('articles.index', compact('articles'));
     }
-    
+
     public function show($id)
     {
         $article = Article::with('author', 'tags', 'comments')
             ->findOrFail($id);
-        
+
         return view('articles.show', compact('article'));
     }
 }
 ```
 
 This approach has several issues:
+
 - **Database logic scattered everywhere**: Query logic is spread across multiple controllers
 - **Hard to test**: You can't easily mock database interactions
 - **Tight coupling**: Controllers are directly dependent on Eloquent models
@@ -81,7 +82,7 @@ return new class extends Migration
             $table->timestamp('published_at')->nullable();
             $table->unsignedBigInteger('author_id');
             $table->timestamps();
-            
+
             $table->foreign('author_id')->references('id')->on('users');
             $table->index(['published', 'published_at']);
         });
@@ -95,12 +96,14 @@ return new class extends Migration
 ```
 
 **Why these fields matter:**
+
 - `slug`: For SEO-friendly URLs
 - `published` and `published_at`: For content management workflow
 - `author_id`: Establishes relationship with users
 - Indexes: Improve query performance for common searches
 
 Don't forget to run the migration:
+
 ```bash
 php artisan migrate
 ```
@@ -128,7 +131,7 @@ interface ArticleRepositoryInterface
      * @return Collection
      */
     public function all(array $with = []): Collection;
-    
+
     /**
      * Find article by ID with optional relationships
      *
@@ -138,7 +141,7 @@ interface ArticleRepositoryInterface
      * @throws ModelNotFoundException
      */
     public function findById(int $id, array $with = []): Article;
-    
+
     /**
      * Find article by slug
      *
@@ -147,7 +150,7 @@ interface ArticleRepositoryInterface
      * @return Article
      */
     public function findBySlug(string $slug, array $with = []): Article;
-    
+
     /**
      * Get published articles with pagination
      *
@@ -156,7 +159,7 @@ interface ArticleRepositoryInterface
      * @return LengthAwarePaginator
      */
     public function getPublished(int $perPage = 15, array $with = []): LengthAwarePaginator;
-    
+
     /**
      * Create a new article
      *
@@ -164,7 +167,7 @@ interface ArticleRepositoryInterface
      * @return Article
      */
     public function create(array $data): Article;
-    
+
     /**
      * Update an existing article
      *
@@ -173,7 +176,7 @@ interface ArticleRepositoryInterface
      * @return Article
      */
     public function update(int $id, array $data): Article;
-    
+
     /**
      * Delete an article
      *
@@ -181,7 +184,7 @@ interface ArticleRepositoryInterface
      * @return bool
      */
     public function delete(int $id): bool;
-    
+
     /**
      * Search articles by title or content
      *
@@ -194,6 +197,7 @@ interface ArticleRepositoryInterface
 ```
 
 **Key benefits of this interface:**
+
 - **Type hints**: Ensures return types are predictable
 - **Documentation**: Methods are self-documenting with clear parameters
 - **Contract enforcement**: Any implementation must provide these methods
@@ -218,29 +222,29 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 class ArticleRepository implements ArticleRepositoryInterface
 {
     protected Article $model;
-    
+
     public function __construct(Article $model)
     {
         $this->model = $model;
     }
-    
+
     public function all(array $with = []): Collection
     {
         return $this->model->with($with)->get();
     }
-    
+
     public function findById(int $id, array $with = []): Article
     {
         return $this->model->with($with)->findOrFail($id);
     }
-    
+
     public function findBySlug(string $slug, array $with = []): Article
     {
         return $this->model->with($with)
             ->where('slug', $slug)
             ->firstOrFail();
     }
-    
+
     public function getPublished(int $perPage = 15, array $with = []): LengthAwarePaginator
     {
         return $this->model->with($with)
@@ -249,47 +253,47 @@ class ArticleRepository implements ArticleRepositoryInterface
             ->orderByDesc('published_at')
             ->paginate($perPage);
     }
-    
+
     public function create(array $data): Article
     {
         // Generate slug if not provided
         if (!isset($data['slug']) && isset($data['title'])) {
             $data['slug'] = \Str::slug($data['title']);
         }
-        
+
         // Set published_at if article is being published
         if (isset($data['published']) && $data['published'] && !isset($data['published_at'])) {
             $data['published_at'] = now();
         }
-        
+
         return $this->model->create($data);
     }
-    
+
     public function update(int $id, array $data): Article
     {
         $article = $this->findById($id);
-        
+
         // Update slug if title changed
         if (isset($data['title']) && $data['title'] !== $article->title) {
             $data['slug'] = \Str::slug($data['title']);
         }
-        
+
         // Set published_at when publishing for the first time
         if (isset($data['published']) && $data['published'] && !$article->published_at) {
             $data['published_at'] = now();
         }
-        
+
         $article->update($data);
-        
+
         return $article->fresh();
     }
-    
+
     public function delete(int $id): bool
     {
         $article = $this->findById($id);
         return $article->delete();
     }
-    
+
     public function search(string $query, int $perPage = 15): LengthAwarePaginator
     {
         return $this->model->where('published', true)
@@ -304,6 +308,7 @@ class ArticleRepository implements ArticleRepositoryInterface
 ```
 
 **Advanced features in this implementation:**
+
 - **Automatic slug generation**: Creates SEO-friendly URLs
 - **Published date handling**: Automatically sets publication timestamps
 - **Search functionality**: Full-text search across title and content
@@ -346,6 +351,7 @@ class AppServiceProvider extends ServiceProvider
 ```
 
 **Why this binding is important:**
+
 - **Dependency Injection**: Laravel's container will automatically inject the correct implementation
 - **Easy swapping**: You can change implementations without modifying controllers
 - **Testing support**: Easy to bind mock implementations during tests
@@ -372,27 +378,27 @@ class ArticleController extends Controller
     public function __construct(
         private ArticleRepositoryInterface $articleRepository
     ) {}
-    
+
     public function index(): View
     {
         $articles = $this->articleRepository->getPublished(
             perPage: 12,
             with: ['author', 'tags']
         );
-        
+
         return view('articles.index', compact('articles'));
     }
-    
+
     public function show(string $slug): View
     {
         $article = $this->articleRepository->findBySlug(
             slug: $slug,
             with: ['author', 'tags', 'comments.user']
         );
-        
+
         return view('articles.show', compact('article'));
     }
-    
+
     public function store(StoreArticleRequest $request): RedirectResponse
     {
         $article = $this->articleRepository->create(
@@ -401,38 +407,39 @@ class ArticleController extends Controller
                 ['author_id' => auth()->id()]
             )
         );
-        
+
         return redirect()->route('articles.show', $article->slug)
             ->with('success', 'Article created successfully!');
     }
-    
+
     public function update(UpdateArticleRequest $request, int $id): RedirectResponse
     {
         $article = $this->articleRepository->update($id, $request->validated());
-        
+
         return redirect()->route('articles.show', $article->slug)
             ->with('success', 'Article updated successfully!');
     }
-    
+
     public function destroy(int $id): RedirectResponse
     {
         $this->articleRepository->delete($id);
-        
+
         return redirect()->route('articles.index')
             ->with('success', 'Article deleted successfully!');
     }
-    
+
     public function search(Request $request): View
     {
         $query = $request->get('q');
         $articles = $this->articleRepository->search($query, 10);
-        
+
         return view('articles.search', compact('articles', 'query'));
     }
 }
 ```
 
 **Benefits of this approach:**
+
 - **Clean controllers**: Focus only on HTTP concerns
 - **No database logic**: All queries are encapsulated in the repository
 - **Easy to read**: Method names clearly indicate what they do
@@ -456,39 +463,39 @@ use Illuminate\Database\Eloquent\Collection;
 abstract class BaseRepository
 {
     protected Model $model;
-    
+
     public function __construct(Model $model)
     {
         $this->model = $model;
     }
-    
+
     public function all(array $with = []): Collection
     {
         return $this->model->with($with)->get();
     }
-    
+
     public function find(int $id, array $with = []): ?Model
     {
         return $this->model->with($with)->find($id);
     }
-    
+
     public function findOrFail(int $id, array $with = []): Model
     {
         return $this->model->with($with)->findOrFail($id);
     }
-    
+
     public function create(array $data): Model
     {
         return $this->model->create($data);
     }
-    
+
     public function update(int $id, array $data): Model
     {
         $model = $this->findOrFail($id);
         $model->update($data);
         return $model->fresh();
     }
-    
+
     public function delete(int $id): bool
     {
         return $this->findOrFail($id)->delete();
@@ -508,7 +515,7 @@ class ArticleRepository extends BaseRepository implements ArticleRepositoryInter
             ->where('slug', $slug)
             ->firstOrFail();
     }
-    
+
     // ... other Article-specific methods
 }
 ```
@@ -532,38 +539,38 @@ class CachedArticleRepository implements ArticleRepositoryInterface
 {
     private const CACHE_PREFIX = 'articles';
     private const CACHE_TTL = 3600; // 1 hour
-    
+
     public function __construct(
         private ArticleRepositoryInterface $repository,
         private CacheRepository $cache
     ) {}
-    
+
     public function all(array $with = []): Collection
     {
         $cacheKey = self::CACHE_PREFIX . '.all.' . md5(serialize($with));
-        
+
         return $this->cache->remember($cacheKey, self::CACHE_TTL, function () use ($with) {
             return $this->repository->all($with);
         });
     }
-    
+
     public function findById(int $id, array $with = []): Article
     {
         $cacheKey = self::CACHE_PREFIX . ".{$id}." . md5(serialize($with));
-        
+
         return $this->cache->remember($cacheKey, self::CACHE_TTL, function () use ($id, $with) {
             return $this->repository->findById($id, $with);
         });
     }
-    
+
     public function create(array $data): Article
     {
         // Clear relevant caches
         $this->cache->forget(self::CACHE_PREFIX . '.all.*');
-        
+
         return $this->repository->create($data);
     }
-    
+
     // ... implement other methods with appropriate cache invalidation
 }
 ```
@@ -587,44 +594,44 @@ use Tests\TestCase;
 class ArticleRepositoryTest extends TestCase
 {
     use RefreshDatabase;
-    
+
     private ArticleRepository $repository;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->repository = new ArticleRepository(new Article());
     }
-    
+
     public function test_can_create_article(): void
     {
         $user = User::factory()->create();
-        
+
         $articleData = [
             'title' => 'Test Article',
             'content' => 'This is test content',
             'author_id' => $user->id,
             'published' => true,
         ];
-        
+
         $article = $this->repository->create($articleData);
-        
+
         $this->assertInstanceOf(Article::class, $article);
         $this->assertEquals('Test Article', $article->title);
         $this->assertEquals('test-article', $article->slug);
         $this->assertNotNull($article->published_at);
     }
-    
+
     public function test_can_find_published_articles(): void
     {
         $user = User::factory()->create();
-        
+
         // Create published and unpublished articles
         Article::factory()->published()->count(3)->create(['author_id' => $user->id]);
         Article::factory()->unpublished()->count(2)->create(['author_id' => $user->id]);
-        
+
         $publishedArticles = $this->repository->getPublished();
-        
+
         $this->assertCount(3, $publishedArticles);
         $publishedArticles->each(function ($article) {
             $this->assertTrue($article->published);
@@ -647,6 +654,7 @@ The Repository Pattern isn't always necessary. Consider skipping it when:
 The Repository Pattern in Laravel provides a powerful way to organize your data access logic, making your applications more maintainable, testable, and flexible. While it does add some complexity, the benefits become clear as your application grows.
 
 **Key takeaways:**
+
 - Use interfaces to define contracts
 - Keep repositories focused on data access
 - Leverage dependency injection for flexibility
@@ -656,6 +664,7 @@ The Repository Pattern in Laravel provides a powerful way to organize your data 
 The examples shown here provide a solid foundation that you can adapt to your specific needs. Remember, the goal is cleaner, more maintainable code that's easier to test and modify over time.
 
 **Next steps:**
+
 - Implement repositories for your existing models
 - Add comprehensive tests
 - Consider adding caching where appropriate
@@ -663,10 +672,10 @@ The examples shown here provide a solid foundation that you can adapt to your sp
 
 ---
 
-*Want to see more Laravel patterns and best practices? Check out my other posts on clean architecture and testing strategies.*
+_Want to see more Laravel patterns and best practices? Check out my other posts on clean architecture and testing strategies._
 
 export function Thing() {
-  return <>World</>
+    return <>World</>
 }
 
 # Hello <Thing />

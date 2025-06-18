@@ -54,19 +54,19 @@ export default makeSource({
     contentDirPath: "./content",
     documentTypes: [Post, Page],
     mdx: {
-            rehypePlugins: [
-                rehypeSlug,
-                [
-                    rehypeHighlight,
-                    {
-                        ignoreMissing: true,
-                        aliases: {
-                            js: "javascript",
-                            ts: "typescript",
-                            php: "php",
-                        },
+        rehypePlugins: [
+            rehypeSlug,
+            [
+                rehypeHighlight,
+                {
+                    ignoreMissing: true,
+                    aliases: {
+                        js: "javascript",
+                        ts: "typescript",
+                        php: "php",
                     },
-                ],
+                },
             ],
-        },
+        ],
+    },
 })

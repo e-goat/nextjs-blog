@@ -31,6 +31,6 @@
         "**/*.tsx",
         ".next/types/**/*.ts",
         ".contentlayer/generated"
-    ],
+, "app/pages/404.js"    ],
     "exclude": ["node_modules"]
 }
