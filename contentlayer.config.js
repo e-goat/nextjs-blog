@@ -1,4 +1,6 @@
 import { defineDocumentType, makeSource } from "contentlayer/source-files"
+import rehypeHighlight from "rehype-highlight"
+import rehypeSlug from "rehype-slug"
 
 /** @type {import('contentlayer/source-files').ComputedFields} */
 const computedFields = {
@@ -51,4 +53,20 @@ export const Post = defineDocumentType(() => ({
 export default makeSource({
     contentDirPath: "./content",
     documentTypes: [Post, Page],
+    mdx: {
+            rehypePlugins: [
+                rehypeSlug,
+                [
+                    rehypeHighlight,
+                    {
+                        ignoreMissing: true,
+                        aliases: {
+                            js: "javascript",
+                            ts: "typescript",
+                            php: "php",
+                        },
+                    },
+                ],
+            ],
+        },
 })

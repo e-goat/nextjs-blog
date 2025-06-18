@@ -1,7 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'highlight.js/styles/github-dark.css';
 
 body * {
     @apply transition-colors duration-300;
+}
+
+pre {
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+code {
+    font-family: 'Fira Code', monospace;
+}
+
+.line--highlighted {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0 1rem;
+    margin: 0 -1rem;
+}
+
+.word--highlighted {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem;
+    border-radius: 0.25rem;
 }
