@@ -1,6 +1,6 @@
 import Link from "next/link"
 import "./globals.css"
-import localFont from 'next/font/local'
+import localFont from "next/font/local"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Analytics } from "@/components/analytics"
 import { ModeToggle } from "@/components/mode-toggle"
@@ -8,7 +8,7 @@ import { GitHubIcon } from "@/components/github-icon"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const fonts_jetbrains = localFont({
-  src: './webfonts/JetBrainsMono-Bold.woff2',
+    src: "./webfonts/JetBrainsMono-Bold.woff2",
 })
 
 export const metadata = {

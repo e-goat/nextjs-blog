@@ -20,7 +20,9 @@ export function GitHubIcon() {
         <Image
             width="22"
             height="22"
-            src={theme === "dark" ? "/github-mark-white.svg" : "/github-mark.svg"}
+            src={
+                theme === "dark" ? "/github-mark-white.svg" : "/github-mark.svg"
+            }
             alt="Github Logo"
         />
     )
