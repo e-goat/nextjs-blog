@@ -54,7 +54,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                                         href="/about"
                                         className="hover:text-blue-500 transition-colors"
                                     >
-                                        About me
+                                        About
                                     </Link>
                                 </nav>
                             </div>

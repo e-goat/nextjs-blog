@@ -1,7 +1,6 @@
 ---
 title: Docker with PHP and Vite HMR
 description: Learn how to containerize your Laravel app with Docker, enable Vite's HMR and create a seamless local development workflow
-author: Martin Duchev
 date: "2025-05-13"
 ---
 
@@ -24,7 +23,7 @@ By the end, you'll have a working setup where Laravel runs in one container, Nod
 
 We'll assume the following Docker context:
 
-```Dockerfile
+```
 /yourapp
 ├── docker
 │ ├── node
@@ -43,7 +42,7 @@ We'll assume the following Docker context:
 
 We start with a lightweight `node:20` container to serve Vite's development server:
 
-```Dockerfile title="docker/node/Dockerfile"
+```
 FROM node:20
 WORKDIR /app
 COPY package*.json ./
@@ -58,7 +57,7 @@ This exposes Vite’s dev server on port `5173`, which is mapped in `docker-comp
 
 Our Laravel container is based on `php:8.3-rc-apache-buster` and includes PHP extensions and Node.js 20:
 
-```Dockerfile title="docker/php/Dockerfile"
+```
 FROM php:8.3-rc-apache-buster AS base
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -117,7 +116,7 @@ This container handles Laravel, PHP-FPM, and Apache.
 
 Here's how it all connects:
 
-```yml title="docker-compose.yml"
+```yml
 services:
     yourapp.develop:
         build:
@@ -241,7 +240,7 @@ This config ensures:
 
 `.env` tweaks: Make sure you tell Laravel and Vite where the dev server is:
 
-```env
+```
 APP_URL=http://localhost
 VITE_DEV_SERVER_URL=http://localhost:5173
 ```
