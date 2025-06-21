@@ -1,12 +1,13 @@
 import Image from "next/image"
 import { useMDXComponent } from "next-contentlayer/hooks"
-import { LinkedInIcon, GithubIcon } from "@/components/icons"
+import {FaLinkedinIn} from "react-icons/fa6"
+import {AiFillGithub}  from "react-icons/ai"
 import Link from "next/link"
 
 const components = {
     Image,
-    LinkedInIcon,
-    GithubIcon,
+    FaLinkedinIn,
+    AiFillGithub,
     Link
 }
 
