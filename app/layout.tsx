@@ -4,7 +4,6 @@ import localFont from "next/font/local"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Analytics } from "@/components/analytics"
 import { ModeToggle } from "@/components/mode-toggle"
-import { GitHubIcon } from "@/components/github-icon"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const fonts_jetbrains = localFont({
@@ -34,16 +33,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                     <div className="max-w-2xl mx-auto py-10 px-4">
                         <header>
                             <div className="flex items-center justify-between">
-                                <section className="flex items-center gap-4">
-                                    <ModeToggle />
-                                    <Link
-                                        href="https://github.com/e-goat"
-                                        target="_blank"
-                                    >
-                                        <GitHubIcon />
-                                    </Link>
-                                </section>
-                                <nav className="ml-auto text-sm font-medium space-x-6">
+                                <nav className="flex space-x-4">
                                     <Link
                                         href="/"
                                         className="hover:text-blue-500 transition-colors"
@@ -57,6 +47,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                                         About
                                     </Link>
                                 </nav>
+                                <ModeToggle />
                             </div>
                         </header>
                         <main>{children}</main>
