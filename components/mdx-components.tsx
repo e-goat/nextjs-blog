@@ -7,7 +7,7 @@ const components = {
     Image,
     LinkedInIcon,
     GithubIcon,
-    Link,
+    Link
 }
 
 interface MdxProps {

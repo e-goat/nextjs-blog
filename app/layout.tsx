@@ -27,7 +27,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             >
                 <ThemeProvider
                     attribute="class"
-                    defaultTheme="system"
+                    defaultTheme="dark"
                     enableSystem
                 >
                     <div className="max-w-2xl mx-auto py-10 px-4">
