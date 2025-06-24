@@ -1,7 +1,7 @@
 "use client"
 
 import { useTheme } from "next-themes"
-import { CgDarkMode } from "react-icons/cg";
+import { CgDarkMode } from "react-icons/cg"
 
 export function ModeToggle() {
     const { setTheme, theme } = useTheme()
@@ -11,7 +11,7 @@ export function ModeToggle() {
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
             className="border rounded-md flex items-center justify-center"
         >
-            <CgDarkMode size={24}/>
+            <CgDarkMode size={24} />
         </button>
     )
 }
