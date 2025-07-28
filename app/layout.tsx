@@ -36,13 +36,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
                                 <nav className="flex space-x-4">
                                     <Link
                                         href="/"
-                                        className="hover:text-blue-500 transition-colors"
+                                        className="hover:text-blue-500"
                                     >
                                         Home
                                     </Link>
                                     <Link
                                         href="/about"
-                                        className="hover:text-blue-500 transition-colors"
+                                        className="hover:text-blue-500"
                                     >
                                         About
                                     </Link>

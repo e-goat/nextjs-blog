@@ -3,10 +3,6 @@
 @tailwind utilities;
 @import "highlight.js/styles/github-dark.css";
 
-body * {
-    @apply transition-colors duration-300;
-}
-
 pre {
     overflow-x: auto;
     border-radius: 0.5rem;
