@@ -23,6 +23,18 @@ export default function Home() {
                         })}
                     </p>
                     {post.description && <p>{post.description}</p>}
+                    {post.tags && post.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            {post.tags.map((tag) => (
+                                <span
+                                    key={tag}
+                                    className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </article>
             ))}
         </div>
