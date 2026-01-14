@@ -2,7 +2,7 @@
 
 Personal blog built with Next.js and Contentlayer.
 
-Live at [mduchev.vercel.app](https://mduchev.vercel.app)
+Live at [mduchev.xyz](mduchev.xyz)
 
 ## Tech Stack
 
