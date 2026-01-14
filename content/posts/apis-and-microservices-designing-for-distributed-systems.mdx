@@ -1,0 +1,68 @@
+---
+title: "APIs and Microservices: Design for Evolution and Failure"
+description: Principles for API design and microservice boundaries, with an emphasis on contracts, resilience, and operability.
+date: "2025-07-28"
+tags: ["API Design", "Microservices", "Distributed Systems", "Event-Driven", "Architecture"]
+---
+
+## Start with the contract
+
+An API is a promise. Make it easy to keep:
+
+- Use stable resource naming and predictable pagination
+- Version intentionally (and avoid breaking changes by default)
+- Document error shapes and retry behavior
+
+Consistency beats cleverness. Your future self will thank you.
+
+## Boundaries: split by ownership and data, not by endpoints
+
+Microservices make sense when they map to:
+
+- Independent teams and deployment cadence
+- Clear data ownership
+- A real need for isolation (scale, compliance, blast radius)
+
+If you can’t describe the boundary in one sentence, it’s probably not a service yet.
+
+## Distributed systems basics
+
+Assume you will see partial failures:
+
+- Timeouts and retries are mandatory
+- Idempotency is a feature, not an afterthought
+- Eventual consistency needs UX design (status, reconciliation, audit)
+
+Example (idempotency in a write endpoint):
+
+```http
+POST /v1/payments
+Idempotency-Key: 9c7b6f2a-2b7d-4b7f-8e44-2f6a4b70c0a1
+Content-Type: application/json
+```
+
+## Event-driven architecture: use events for decoupling
+
+Events work well for:
+
+- Integrations across domains
+- Audit trails and asynchronous processing
+- Scaling fan-out work
+
+They fail when event schemas drift. Use schema versioning, compatibility checks, and consumer-driven contracts.
+
+## Operability: build in the debugging hooks
+
+Make production understandable:
+
+- Correlation IDs across services
+- Structured logs with key fields (user, tenant, request)
+- Metrics for queue depth, error rate, and latency
+
+If you can’t observe it, you can’t safely evolve it.
+
+## References
+
+- [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110)
+- [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
+- [CloudEvents Specification](https://cloudevents.io/)

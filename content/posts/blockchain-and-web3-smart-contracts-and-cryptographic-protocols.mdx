@@ -1,0 +1,75 @@
+---
+title: "Blockchain and Web3: Smart Contracts, DApps, and Real Security Constraints"
+description: A pragmatic overview of building on-chain systems, focusing on trust boundaries, audits, and operational risk.
+date: "2026-01-04"
+tags: ["Blockchain", "Web3", "Smart Contracts", "Cryptography", "Security"]
+---
+
+## Start with the trust model
+
+Blockchains are useful when you need:
+
+- Shared state between parties that don’t fully trust each other
+- Transparent verification of transactions and rules
+- Programmable settlement with strong auditability
+
+If a trusted database plus signatures solves the problem, that may be simpler and safer.
+
+## Smart contracts are immutable programs with money attached
+
+The main engineering difference is blast radius:
+
+- Bugs are public and often irreversible
+- Upgrades require explicit mechanisms and governance
+- “Admin keys” create new trust assumptions
+
+Design for minimal privileges and clear upgrade paths.
+
+Example (explicit access control via a proven library):
+
+```solidity
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract Vault is Ownable {
+    function sweep(address token, address to) external onlyOwner {
+        // transfer logic
+    }
+}
+```
+
+## Common vulnerabilities to defend against
+
+Security work is the project:
+
+- Re-entrancy and unsafe external calls
+- Integer and precision mistakes
+- Access-control gaps and role confusion
+- Oracle manipulation and price feed assumptions
+
+Use proven libraries, keep contracts small, and write invariants you can test.
+
+## DApps: most complexity is off-chain
+
+User experience and safety depend on:
+
+- Key management and recovery choices
+- Transaction simulation and clear signing prompts
+- Monitoring for stuck transactions and chain reorganizations
+
+Assume users will make mistakes and build guardrails accordingly.
+
+## Audits are necessary but not sufficient
+
+High-signal practices:
+
+- Threat modeling and explicit assumptions
+- Automated analysis and fuzzing
+- Staged rollouts and circuit breakers where possible
+
+Treat security as continuous work, not a final checkbox.
+
+## References
+
+- [Solidity documentation](https://docs.soliditylang.org/)
+- [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts/)
+- [Ethereum developer portal](https://ethereum.org/en/developers/)

@@ -1,0 +1,70 @@
+---
+title: "Mobile Development: Cross-Platform Apps That Still Feel Native"
+description: How to choose between Flutter and React Native and avoid the common delivery traps.
+date: "2025-08-05"
+tags: ["Mobile", "Flutter", "React Native", "iOS", "Android", "Performance"]
+---
+
+## Choose based on constraints, not ideology
+
+Both Flutter and React Native can work well. Your choice often comes down to:
+
+- Team skills and existing code (Dart vs TypeScript/JS)
+- UI complexity and custom animations
+- Need for platform-specific APIs and native modules
+- Performance tolerance for heavy lists and transitions
+
+## Flutter: strong UI control, consistent rendering
+
+Flutter shines when you want:
+
+- Pixel-consistent UI across platforms
+- Great tooling and integrated widget model
+- Fewer surprises from platform view differences
+
+The tradeoff is learning Dart and managing plugin quality.
+
+## React Native: leverage the web ecosystem
+
+React Native is attractive when you:
+
+- Already have React expertise
+- Want shared business logic with a web app
+- Need rapid iteration with a strong JS toolchain
+
+The tradeoff is that native module boundaries can become a bottleneck if not managed carefully.
+
+## Delivery pitfalls to avoid
+
+Cross-platform projects fail for predictable reasons:
+
+- Underestimating offline states and flaky networks
+- Letting “shared code” become tangled coupling
+- Shipping without telemetry (crash reports, app startup, navigation latency)
+
+Define a clear module boundary: shared domain logic vs platform UI and platform services.
+
+Example (React Native list perf: stable keys and lightweight rows):
+
+```tsx
+<FlatList
+  data={items}
+  keyExtractor={(item) => item.id}
+  renderItem={({ item }) => <Row item={item} /> }
+/>
+```
+
+## Build for reliability
+
+Make the app resilient:
+
+- Cache critical data and handle refresh safely
+- Add retry logic with user-visible progress
+- Use feature flags to reduce release risk
+
+Treat release automation (build signing, store metadata, rollout controls) as first-class engineering.
+
+## References
+
+- [React Native performance](https://reactnative.dev/docs/performance)
+- [Flutter performance best practices](https://docs.flutter.dev/perf/best-practices)

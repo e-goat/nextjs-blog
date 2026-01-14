@@ -1,0 +1,65 @@
+---
+title: "Cybersecurity: Secure Coding, Zero Trust, and Practical Threat Modeling"
+description: A short approach to reducing risk in everyday engineering work without slowing delivery to a crawl.
+date: "2025-10-12"
+tags: ["Security", "Secure Coding", "Zero Trust", "Threat Modeling", "AppSec"]
+---
+
+## Secure coding starts with defaults
+
+The safest code is the code you don’t have to remember to secure:
+
+- Validate inputs at boundaries (API, jobs, webhooks)
+- Encode outputs based on context (HTML, SQL, shell)
+- Use parameterized queries and safe serializers
+- Centralize auth and authorization checks
+
+Treat “security bugs” as logic bugs that happen to have higher impact.
+
+Example (parameterized queries avoid injection):
+
+```ts
+await db.query("SELECT * FROM users WHERE id = $1", [userId])
+```
+
+## Zero trust is identity and verification, everywhere
+
+Zero trust is not a product. It’s a pattern:
+
+- Authenticate every request (service-to-service included)
+- Authorize with least privilege and strong segmentation
+- Assume the network is hostile and credentials can leak
+
+Focus on reducing blast radius: separate data, separate roles, separate environments.
+
+## Threat modeling: keep it lightweight and continuous
+
+You don’t need a long workshop to get value. For each feature, answer:
+
+- What are we protecting (data, money movement, admin actions)?
+- Who might attack (curious user, competitor, insider, bot)?
+- Where are the trust boundaries (browser to API, API to DB, third parties)?
+- What’s the worst realistic failure?
+
+## Controls that pay off quickly
+
+High leverage practices:
+
+- Dependency scanning and upgrade automation
+- Secret detection in CI
+- Security headers and CSP where applicable
+- Rate limiting and abuse detection for public endpoints
+
+## Incident readiness is part of security
+
+Assume you will have incidents. Prepare:
+
+- Structured logs with enough context to investigate
+- Runbooks for common issues (credential leak, suspicious auth)
+- A clear on-call and escalation path
+
+## References
+
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/)
+- [NIST SP 800-207: Zero Trust Architecture](https://csrc.nist.gov/publications/detail/sp/800-207/final)

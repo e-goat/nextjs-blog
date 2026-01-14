@@ -1,0 +1,69 @@
+---
+title: "Practical AI Engineering: From Model Building to LLM Integration"
+description: A short guide to shipping useful AI features with clear evaluation, safe integration, and predictable costs.
+date: "2025-11-07"
+tags: ["AI", "Machine Learning", "LLM", "Agents", "Vector Databases", "MLOps"]
+---
+
+## Start with the product constraint
+
+Before choosing a model, write down what “good” means for the feature:
+
+- Latency and cost budgets
+- Allowed failure modes (and what the UI should do)
+- Data boundaries (PII, retention, logging)
+- A measurable success metric (accuracy, resolution rate, time saved)
+
+## Model building: prefer baselines and iteration
+
+If you’re training a model:
+
+- Begin with a baseline (logistic regression, gradient boosting, a small transformer).
+- Use a clean split strategy (time-based splits for temporal data).
+- Track features, training data versions, and metrics per run.
+
+Treat “model quality” as more than a single number: error clusters and edge cases matter.
+
+## LLM integration: treat it like a distributed system
+
+LLMs are non-deterministic and rate-limited. Build for that:
+
+- Use structured outputs (JSON schema) and validate aggressively.
+- Add retries with backoff and idempotency keys.
+- Implement fallbacks (smaller model, cached answer, human-in-the-loop).
+
+Example (validate the response shape before using it):
+
+```ts
+type Answer = { answer: string; citations: string[] }
+
+function isAnswer(x: unknown): x is Answer {
+    return !!x &&
+        typeof x === "object" &&
+        typeof (x as any).answer === "string" &&
+        Array.isArray((x as any).citations)
+}
+```
+
+## Vector databases: retrieval is a system, not a query
+
+RAG works when the retrieval pipeline is solid:
+
+- Chunking strategy is part of the model (size, overlap, metadata).
+- Index with filters (tenant, permission, doc type).
+- Evaluate retrieval separately from generation.
+
+## Agents: scope them tightly
+
+Agents are great for multi-step workflows, but only when bounded:
+
+- Explicit tools and permissions
+- Tool-call auditing
+- Hard limits on steps, time, and spending
+
+Keep the “plan” separate from “execute,” and always log the tool trace.
+
+## References
+
+- [JSON Schema](https://json-schema.org/)
+- [OpenTelemetry documentation](https://opentelemetry.io/docs/)

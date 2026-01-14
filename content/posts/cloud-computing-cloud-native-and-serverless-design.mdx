@@ -1,0 +1,67 @@
+---
+title: "Cloud Computing: Cloud-Native and Serverless Without the Hype"
+description: How to design services that scale predictably on AWS, Azure, or GCP with sensible tradeoffs.
+date: "2025-07-15"
+tags: ["Cloud", "AWS", "Azure", "GCP", "Serverless", "Architecture"]
+---
+
+## Cloud-native is about operating model
+
+“Cloud-native” usually means you can:
+
+- Deploy frequently without fragile runbooks
+- Scale horizontally when traffic changes
+- Recover quickly from failures
+
+It’s less about which vendor you pick and more about how you build and run software.
+
+## Serverless fits spiky, event-driven workloads
+
+Serverless can be a great default when:
+
+- Work arrives as events (webhooks, queue messages, schedules)
+- You want minimal infrastructure management
+- You can tolerate cold starts or mitigate them
+
+Common pitfalls are hidden coupling and difficult local debugging. Offset that with good tracing and small functions.
+
+Example (make operational constraints explicit in IaC):
+
+```hcl
+resource "aws_lambda_function" "handler" {
+  function_name = "api-handler"
+  timeout       = 10
+  memory_size   = 512
+}
+```
+
+## Design for failure, not perfection
+
+Across AWS/Azure/GCP, the same resilience patterns show up:
+
+- Timeouts everywhere (client, server, downstream calls)
+- Retries with jitter (but only when operations are safe to retry)
+- Circuit breakers and bulkheads for noisy dependencies
+- Dead-letter queues for poisoned messages
+
+## Treat IAM as part of your application
+
+Security and operability depend on identity and permissions:
+
+- Use least-privilege roles per service
+- Prefer short-lived credentials (workload identity)
+- Keep secrets in a managed store, not environment files
+
+## Optimize cost like performance
+
+Cloud bills are feedback. Make them actionable:
+
+- Attribute cost by service/team (tags/labels)
+- Watch top drivers (egress, logs, idle databases)
+- Right-size and autoscale with clear SLOs
+
+## References
+
+- [AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html)
+- [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/)
+- [Google Cloud Architecture Framework](https://cloud.google.com/architecture/framework)

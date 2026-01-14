@@ -1,0 +1,66 @@
+---
+title: "Data Engineering: Build Pipelines You Can Trust"
+description: A compact view of ETL/ELT, data lakes, and streaming systems with a focus on quality and operational simplicity.
+date: "2025-09-27"
+tags: ["Data Engineering", "ETL", "ELT", "Data Lakes", "Streaming", "Analytics"]
+---
+
+## Model the business first, then the tables
+
+Data projects fail when “what does this mean?” is unclear.
+
+- Define entities and metrics in plain language
+- Track metric ownership and calculation rules
+- Keep dimensional models and event models explicit
+
+## ETL vs ELT: pick based on where transformations belong
+
+Common patterns:
+
+- **ETL**: transform before loading when the target is strict or expensive
+- **ELT**: load raw data, transform in the warehouse/lakehouse for flexibility
+
+In practice, you want both: raw ingestion plus curated, versioned transforms.
+
+Example (incremental load pattern):
+
+```sql
+insert into curated.events
+select *
+from raw.events
+where ingested_at > (select coalesce(max(ingested_at), '1970-01-01') from curated.events);
+```
+
+## Data lakes: organize for discovery and governance
+
+A lake without structure becomes a dumping ground. Establish:
+
+- Naming conventions and partitioning strategy
+- Schema evolution rules
+- Access controls by dataset and role
+
+Treat datasets like products: documented, owned, and monitored.
+
+## Streaming: start simple, then grow sophistication
+
+Real-time pipelines introduce new failure modes:
+
+- Late or out-of-order events
+- Duplicates and replays
+- Backpressure and consumer lag
+
+Design for idempotency and implement clear replay procedures early.
+
+## Quality and observability are non-negotiable
+
+If you can’t trust the data, it won’t be used:
+
+- Data tests (nulls, ranges, uniqueness, referential checks)
+- Freshness and completeness monitoring
+- Lineage to answer “where did this number come from?”
+
+## References
+
+- [dbt documentation](https://docs.getdbt.com/)
+- [Apache Kafka documentation](https://kafka.apache.org/documentation/)
+- [Apache Iceberg documentation](https://iceberg.apache.org/)

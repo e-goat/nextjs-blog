@@ -1,0 +1,77 @@
+---
+title: "Containerization and Orchestration: Docker, Kubernetes, and When to Use a Service Mesh"
+description: A short guide to packaging, scheduling, and operating services without overcomplicating your platform.
+date: "2025-10-30"
+tags: ["Docker", "Kubernetes", "Containers", "Service Mesh", "Platform Engineering"]
+---
+
+## Docker: standardize packaging, not architecture
+
+Containers are a delivery primitive:
+
+- Build reproducible images
+- Keep images small and explicit
+- Run as non-root where possible
+
+Treat the Dockerfile as part of your supply chain, not a one-off script.
+
+## Kubernetes: adopt it for operational leverage
+
+Kubernetes is worth it when you need:
+
+- Multiple services with shared scheduling and scaling needs
+- Strong isolation between workloads
+- A consistent deployment and networking model
+
+If you’re running one or two services, a managed container platform may be simpler.
+
+## The basics that keep clusters stable
+
+Stable clusters come from discipline:
+
+- Requests/limits so scheduling is predictable
+- Readiness/liveness probes that reflect reality
+- Pod disruption budgets for safe upgrades
+- Resource-aware autoscaling
+
+Example (declare requests/limits and a basic readiness probe):
+
+```yml
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+```
+
+## Service mesh: earn it
+
+A mesh can help with:
+
+- Mutual TLS between services
+- Fine-grained traffic control (canary, retries, timeouts)
+- Uniform telemetry
+
+It also adds complexity and failure modes. Adopt it when you have a real need for consistent security and traffic policy across many services.
+
+## Keep the platform observable
+
+Prioritize:
+
+- Cluster-level metrics (CPU/memory pressure, eviction rates)
+- Workload health (restarts, readiness)
+- Traces across ingress and service boundaries
+
+If debugging requires guesswork, you’ll pay for it in incidents.
+
+## References
+
+- [Dockerfile best practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)
+- [Kubernetes: Probes](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes)
+- [Istio documentation](https://istio.io/latest/docs/)

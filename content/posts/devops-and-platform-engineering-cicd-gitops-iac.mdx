@@ -1,0 +1,80 @@
+---
+title: "DevOps and Platform Engineering: Build a Boring, Reliable Delivery System"
+description: A compact checklist for CI/CD, GitOps, IaC, and observability that scales with your team.
+date: "2025-09-03"
+tags: ["DevOps", "Platform Engineering", "CI/CD", "GitOps", "IaC", "Observability"]
+---
+
+## CI/CD: optimize for fast, trusted feedback
+
+Good pipelines are boring:
+
+- Run lint, typecheck, and tests on every change
+- Cache dependencies and build artifacts
+- Fail fast, then show the smallest useful error output
+
+If developers don’t trust CI, they stop looking at it. Keep it deterministic.
+
+Example (a minimal CI job that runs on every push/PR):
+
+```yml
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+```
+
+## GitOps: make the desired state the source of truth
+
+GitOps works best when:
+
+- Environments are described declaratively
+- Changes are reviewed like application code
+- The cluster reconciles state continuously
+
+Keep a clear boundary between “app repo” and “environment repo,” or at least make ownership explicit.
+
+## IaC: reduce snowflakes and surprise drift
+
+Infrastructure-as-code is not only provisioning; it’s lifecycle management:
+
+- Pin providers and modules
+- Separate state per environment
+- Run drift detection and policy checks in CI
+
+Prefer composable modules over mega-modules, and make inputs explicit.
+
+## Observability: answer “what changed?” quickly
+
+Focus on a few high-signal signals:
+
+- Logs with request IDs and meaningful error context
+- Metrics for saturation, errors, latency, and throughput
+- Traces across service boundaries
+
+Tie these to SLOs so alerts represent user impact, not noise.
+
+## Automation: remove toil, don’t create surprise
+
+Automate repeatable workflows:
+
+- Provisioning and access requests
+- Dependency updates
+- Release notes and versioning
+
+Make automation auditable and reversible.
+
+## References
+
+- [GitHub Actions documentation](https://docs.github.com/actions)
+- [Argo CD documentation](https://argo-cd.readthedocs.io/)
+- [Terraform documentation](https://developer.hashicorp.com/terraform/docs)

@@ -1,0 +1,71 @@
+---
+title: "Web Development: Modern Frameworks and Performance That Users Notice"
+description: Framework choice matters less than render discipline, caching strategy, and shipping the smallest useful page.
+date: "2025-12-02"
+tags: ["Web Development", "React", "Next.js", "Svelte", "Performance", "Frontend"]
+---
+
+## Pick a framework for the team, not the trend
+
+React, Next.js, and Svelte can all ship great experiences. A better question is:
+
+- Can the team debug it quickly?
+- Does it support your rendering needs (SSR, SSG, streaming)?
+- Is the ecosystem stable for your dependencies?
+
+## Performance basics that compound
+
+Most wins are not exotic:
+
+- Reduce JavaScript shipped to the browser
+- Prefer server rendering for content pages
+- Cache aggressively at the edge when possible
+- Load images correctly (sizes, formats, lazy loading)
+
+Treat the network as slow and the main thread as expensive.
+
+Example (opt into framework primitives for images):
+
+```tsx
+import Image from "next/image"
+
+export function Avatar() {
+  return <Image src="/profile-rbd.jpg" alt="Profile photo" width={96} height={96} />
+}
+```
+
+## A practical rendering checklist
+
+When a page feels slow, look for:
+
+- Too much work during hydration
+- Components re-rendering unnecessarily
+- Large client-side bundles pulled in by one import
+- Long task spikes from third-party scripts
+
+Measure with Web Vitals and ship changes that move a metric, not just code.
+
+## Make accessibility the default
+
+Accessible pages tend to be more robust:
+
+- Semantic HTML first
+- Keyboard navigation and visible focus states
+- Respect reduced-motion preferences
+- Meaningful form labels and errors
+
+It’s easier to build accessible components than to retrofit them.
+
+## Treat the UI as a system
+
+Consistency reduces bugs:
+
+- Shared primitives (buttons, inputs, dialog patterns)
+- A small design token set (spacing, color, typography)
+- Linting and CI checks to keep regressions out
+
+## References
+
+- [Next.js Image Optimization](https://nextjs.org/docs/pages/api-reference/components/image)
+- [Web Vitals on web.dev](https://web.dev/vitals/)
+- [MDN: ARIA basics](https://developer.mozilla.org/docs/Web/Accessibility/ARIA)
