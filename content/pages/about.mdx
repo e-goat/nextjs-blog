@@ -6,9 +6,11 @@ description: Full-stack developer with a focus on building maintainable, scalabl
 <div className="flex flex-col items-center justify-center text-center ">
     <Image
         src="/profile-rbd.avif"
-        width="300"
-        height="300"
-        alt="Image"
+        width="384"
+        height="384"
+        alt="Martin Duchev"
+        loading="lazy"
+        sizes="(max-width: 768px) 240px, (max-width: 1024px) 320px, 384px"
         className="rounded-full w-60 h-60 md:w-80 md:h-80 lg:w-96 lg:h-96 object-cover border-2 border-slate-600 p-2 dark:border-slate-300"
     />
 </div>
@@ -49,9 +51,4 @@ I'm Martin Duchev, a full-stack developer focused on building reliable, maintain
 
 ---
 
-<div className="flex flex-col items-center justify-center text-center gap-2">
-    Available for collaboration. Reach me at
-    <a href="mailto:duchevmartin@gmail.com" className="inline-block">
-        duchevmartin@gmail.com
-    </a>
-</div>
+<Footer />

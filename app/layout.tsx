@@ -1,6 +1,7 @@
 import Link from "next/link"
 import "./globals.css"
 import localFont from "next/font/local"
+import { Press_Start_2P } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Analytics } from "@/components/analytics"
 import { ModeToggle } from "@/components/mode-toggle"
@@ -8,6 +9,12 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const fonts_jetbrains = localFont({
     src: "./webfonts/JetBrainsMono-Bold.woff2",
+})
+
+export const pressStart2P = Press_Start_2P({
+    weight: "400",
+    subsets: ["latin"],
+    variable: "--font-press-start-2p",
 })
 
 export const metadata = {
@@ -23,7 +30,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     return (
         <html lang="en">
             <body
-                className={`antialiased min-h-screen bg-white dark:bg-indigo-950 text-slate-900 dark:text-slate-50 ${fonts_jetbrains.className}`}
+                className={`antialiased min-h-screen bg-white dark:bg-indigo-950 text-slate-900 dark:text-slate-50 ${fonts_jetbrains.className} ${pressStart2P.variable}`}
             >
                 <ThemeProvider
                     attribute="class"

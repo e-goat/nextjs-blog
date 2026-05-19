@@ -36,3 +36,6 @@ next-env.d.ts
 .contentlayer
 
 package-lock.json
+
+# likes data
+/data/likes.json

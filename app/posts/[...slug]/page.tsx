@@ -4,6 +4,7 @@ import { allPosts } from "contentlayer/generated"
 import { Metadata } from "next"
 import { Mdx } from "@/components/mdx-components"
 import Info from "@/app/ui/info"
+import { LikeButton } from "@/components/like-button"
 
 interface PostProps {
     params: {
@@ -67,6 +68,9 @@ export default async function PostPage({ params }: PostProps) {
             )}
             <hr className="my-4" />
             <Mdx code={post.body.code} />
+            <div className="flex justify-end not-prose mt-8 mb-4">
+                <LikeButton slug={post.slugAsParams} />
+            </div>
             <Info />
         </article>
     )
