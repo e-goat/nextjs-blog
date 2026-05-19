@@ -1,24 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs"
-import path from "path"
+import { Redis } from "@upstash/redis"
 
-const DATA_DIR = path.join(process.cwd(), "data")
-const LIKES_FILE = path.join(DATA_DIR, "likes.json")
+const redis = Redis.fromEnv()
+
 const SLUG_RE = /^[a-z0-9-]+$/
-
-function readLikes(): Record<string, string[]> {
-    if (!existsSync(LIKES_FILE)) return {}
-    try {
-        return JSON.parse(readFileSync(LIKES_FILE, "utf-8"))
-    } catch {
-        return {}
-    }
-}
-
-function writeLikes(data: Record<string, string[]>) {
-    if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true })
-    writeFileSync(LIKES_FILE, JSON.stringify(data, null, 2))
-}
 
 function getClientIp(req: NextRequest): string {
     return (
@@ -34,11 +19,15 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Invalid slug" }, { status: 400 })
     }
 
-    const likes = readLikes()
     const ip = getClientIp(req)
-    const postLikes = likes[slug] ?? []
+    const key = `likes:${slug}`
 
-    return NextResponse.json({ count: postLikes.length, liked: postLikes.includes(ip) })
+    const [count, liked] = await Promise.all([
+        redis.scard(key),
+        redis.sismember(key, ip),
+    ])
+
+    return NextResponse.json({ count, liked: liked === 1 })
 }
 
 export async function POST(req: NextRequest) {
@@ -55,20 +44,17 @@ export async function POST(req: NextRequest) {
     }
 
     const ip = getClientIp(req)
-    const likes = readLikes()
-    const postLikes = likes[slug] ?? []
-    const alreadyLiked = postLikes.includes(ip)
+    const key = `likes:${slug}`
 
-    likes[slug] = alreadyLiked
-        ? postLikes.filter((i) => i !== ip)
-        : [...postLikes, ip]
+    const alreadyLiked = await redis.sismember(key, ip)
 
-    try {
-        writeLikes(likes)
-    } catch (err) {
-        console.error("[likes] Failed to write likes file:", err)
-        return NextResponse.json({ error: "Failed to persist like" }, { status: 500 })
+    if (alreadyLiked) {
+        await redis.srem(key, ip)
+    } else {
+        await redis.sadd(key, ip)
     }
 
-    return NextResponse.json({ count: likes[slug].length, liked: !alreadyLiked })
+    const count = await redis.scard(key)
+
+    return NextResponse.json({ count, liked: !alreadyLiked })
 }
