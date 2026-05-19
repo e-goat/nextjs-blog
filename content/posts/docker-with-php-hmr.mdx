@@ -1,47 +1,42 @@
 ---
 title: Docker with PHP and Vite HMR
-description: Learn how to containerize your Laravel app with Docker, enable Vite's HMR and create a seamless local development workflow
+description: How to containerize a Laravel app with Docker, enable Vite's HMR, and create a seamless local development workflow that doesn't fight you.
 date: "2025-06-21"
 tags: ["Docker", "Laravel", "Vite", "HMR", "Development Environment", "DevOps"]
 ---
 
-## Introduction
+## What we're building
 
-Modern Laravel apps benefit from tools like **Vite** for frontend bundling and **Docker** for isolated development environments. In this guide, we’ll containerize a Laravel project named `yourapp` with:
+Modern Laravel apps benefit from Vite for frontend bundling and Docker for isolated development environments. The challenge is making Vite's Hot Module Reloading work across the container boundary — the browser connects to a Vite dev server running inside Docker, and without the right configuration, the WebSocket connection that powers HMR won't reach it.
 
-- PHP 8.3 (Apache)
-- Node.js 20 for Vite and Hot Module Reloading (HMR)
-- MariaDB for database
-- phpMyAdmin for DB inspection
+This guide sets up:
 
-By the end, you'll have a working setup where Laravel runs in one container, Node/Vite in another, and HMR works flawlessly on `localhost:5173`.
+- PHP 8.3 (Apache) for Laravel
+- Node.js 20 in a separate container for Vite
+- MariaDB and phpMyAdmin
+- HMR that actually works on `localhost:5173`
 
----
-
-## 🗂️ Project Structure
-
-We'll assume the following Docker context:
+## Project structure
 
 ```
 /yourapp
 ├── docker
-│ ├── node
-│ │ └── Dockerfile
-│ └── php
-│ ├── Dockerfile
-│ ├── php.ini
-│ └── opcache.ini
+│   ├── node
+│   │   └── Dockerfile
+│   └── php
+│       ├── Dockerfile
+│       ├── php.ini
+│       └── opcache.ini
 ├── docker-compose.yml
 ├── package.json
-├── vite.config.js
-└── ...
+└── vite.config.js
 ```
 
-## NodeJS Container for Vite
+## Node container for Vite
 
-We start with a lightweight `node:20` container to serve Vite's development server:
+A lightweight `node:20` image runs the Vite dev server:
 
-```
+```dockerfile
 FROM node:20
 WORKDIR /app
 COPY package*.json ./
@@ -50,13 +45,9 @@ COPY . .
 CMD ["npm", "run", "dev"]
 ```
 
-This exposes Vite’s dev server on port `5173`, which is mapped in `docker-compose.yml`.
+## PHP (Laravel) container
 
-## PHP (Laravel) Container
-
-Our Laravel container is based on `php:8.3-rc-apache-buster` and includes PHP extensions and Node.js 20:
-
-```
+```dockerfile
 FROM php:8.3-rc-apache-buster AS base
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -66,7 +57,6 @@ ENV npm_config_cache=/tmp/.npm
 ARG WWWUSER
 ARG NODE_VERSION=20
 
-# PHP + system dependencies
 RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
@@ -78,13 +68,12 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
-    opcache mysqli pdo_mysql gd bcmath zip intl exif \
+        opcache mysqli pdo_mysql gd bcmath zip intl exif \
     && curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set Laravel public folder as DocumentRoot
 RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
 
 COPY ./docker/php/php.ini /usr/local/etc/php/
@@ -92,7 +81,6 @@ COPY ./docker/php/opcache.ini /usr/local/etc/php/conf.d/20-opcache.ini
 
 RUN a2enmod rewrite
 
-# Build stage to install Composer and adjust user permissions
 FROM base AS builder
 
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
@@ -109,11 +97,7 @@ COPY --chown=www-data:www-data . .
 USER www-data
 ```
 
-This container handles Laravel, PHP-FPM, and Apache.
-
-## Docker Compose Setup
-
-Here's how it all connects:
+## Docker Compose
 
 ```yml
 services:
@@ -173,7 +157,7 @@ services:
             - .:/app
         working_dir: /app
         ports:
-            - "5173:5173" # Vite HMR port
+            - "5173:5173"
         command: ["npm", "run", "dev"]
 
 networks:
@@ -185,20 +169,20 @@ volumes:
         driver: local
 ```
 
-## Running Everything
+## Running everything
 
 1. Copy `.env.example` to `.env` and configure DB credentials.
-2. Assuming Docker compose is installed, run:
+2. Run:
 
 ```bash
 docker compose up --build
 ```
 
-3. Visit `localhost`. Also Vite hot reload should work on `localhost:5173` and phpmyadmin on `localhost:8080`.
+Laravel is at `localhost`, Vite HMR at `localhost:5173`, phpMyAdmin at `localhost:8080`.
 
-## 🔥 Configuring Vite for Hot Module Reload (HMR)
+## Vite configuration for HMR inside Docker
 
-To make _Vite work inside Docker_ and support Laravel’s blade-based asset injection, use the `laravel-vite-plugin` and expose the right ports.
+The two things Vite needs to work across the container boundary: bind to `0.0.0.0` so the container accepts connections from outside, and configure the HMR host to `localhost` so the browser's WebSocket connects to your host machine, not the container's internal hostname.
 
 ```js
 import { defineConfig } from "vite"
@@ -206,65 +190,43 @@ import laravel from "laravel-vite-plugin"
 
 export default defineConfig({
     server: {
-        host: "0.0.0.0", // Required so Docker container listens for connections from host
-        port: 5173, // Must match exposed port in docker-compose
+        host: "0.0.0.0",
+        port: 5173,
         strictPort: true,
         hmr: {
-            host: "localhost", // Host machine's address (from container's point of view)
+            host: "localhost",
             port: 5173,
-            protocol: "ws", // Use WebSocket explicitly for HMR
+            protocol: "ws",
         },
     },
-    publicDir: "public",
-    base: "/",
     plugins: [
         laravel({
             input: ["resources/css/app.css", "resources/js/app.js"],
-            refresh: true, // Triggers page reloads when Blade/PHP files change
+            refresh: true,
         }),
     ],
     resolve: {
         alias: {
-            "@": "/resources/js", // Cleaner imports like `@/components/MyComponent.vue`
+            "@": "/resources/js",
         },
     },
 })
 ```
 
-This config ensures:
-
-- Vite binds to `0.0.0.0` so it’s accessible from your host machine.
-- WebSocket-based HMR works correctly in Docker with proper host and port.
-- Laravel automatically refreshes Blade views and routes thanks to `refresh: true`.
-
-`.env` tweaks: Make sure you tell Laravel and Vite where the dev server is:
+And in `.env`:
 
 ```
 APP_URL=http://localhost
 VITE_DEV_SERVER_URL=http://localhost:5173
 ```
 
-## Result
+With this in place, Blade views served by Laravel load JavaScript from the Vite dev server, and changes to frontend files appear in the browser without a full reload.
 
-Now, when you run:
+## Final notes
 
-```bash
-docker compose up --build
-```
-
-Vite serves assets separately via HMR, and Laravel’s Blade templates inject the development URLs correctly. Frontend updates reflect instantly in the browser without full-page reloads.
-
-## Final Notes
-
-- Ensure your Laravel app loads assets via `@vite` directives or `asset()` method.
-- Set `APP_ENV=local` and `APP_DEBUG=true` in `.env`
-- Node/Vite server is separate and doesn't serve backend routes — it handles JS/CSS hot reload only.
-
-## ✅ Conclusion
-
-With this setup, you're running a full-featured Laravel environment using Docker and Vite with hot module reloading. Frontend changes update instantly, backend is isolated, and the dev workflow is streamlined.
-
-Feel free to tweak the config for production or CI/CD builds later. Happy coding!
+- Laravel templates must use `@vite` directives, not manual `<script>` tags, for HMR injection to work.
+- Set `APP_ENV=local` and `APP_DEBUG=true` in `.env` for development.
+- The Node container only handles JS/CSS — it has no knowledge of PHP routes or application state.
 
 ## References
 

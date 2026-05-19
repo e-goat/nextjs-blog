@@ -1,27 +1,25 @@
 ---
-title: "Build a boring, reliable delivery system"
-description: A compact checklist for CI/CD, GitOps, IaC, and observability that scales with your team.
+title: "The boring delivery pipeline is the good one"
+description: CI/CD, GitOps, and IaC that developers actually trust — built for fast feedback, not for showing off tooling choices.
 date: "2025-09-03"
 tags: ["DevOps", "Platform Engineering", "CI/CD", "GitOps", "IaC", "Observability"]
 ---
 
-## CI/CD: optimize for fast, trusted feedback
+## Trust is the output
 
-Good pipelines are boring:
+A CI pipeline that developers don't trust is a CI pipeline that developers work around. They skip the checks before merging, stop reading failure notifications because too many are false positives, or rerun failing jobs until they go green on coincidence.
 
-- Run lint, typecheck, and tests on every change
-- Cache dependencies and build artifacts
-- Fail fast, then show the smallest useful error output
+The measure of a good pipeline isn't how many tools it integrates or how sophisticated the configuration is. It's whether the team looks at a red build and immediately believes something real is wrong.
 
-If developers don’t trust CI, they stop looking at it. Keep it deterministic.
+That requires: determinism (the same commit produces the same result), speed (fast enough that devs wait for it instead of merging past it), and actionable output (clear error messages that identify the problem, not a wall of log output).
 
-Example (a minimal CI job that runs on every push/PR):
+## A minimal CI setup that actually holds
 
 ```yml
 name: ci
 on: [push, pull_request]
 jobs:
-  test:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,48 +28,52 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
       - run: npm test
 ```
 
-## GitOps: make the desired state the source of truth
+Add steps when you have a reason, not because they're available. A pipeline that runs for 20 minutes before telling you about a lint error has failed at the "fast feedback" requirement regardless of what it eventually checks.
 
-GitOps works best when:
+## GitOps: the desired state owns the conversation
 
-- Environments are described declaratively
-- Changes are reviewed like application code
-- The cluster reconciles state continuously
+GitOps works when the cluster and the git repo agree to disagree in a structured way. The repo is authoritative. The cluster reconciles toward it. Drift is detected and surfaced, not silently accepted.
 
-Keep a clear boundary between “app repo” and “environment repo,” or at least make ownership explicit.
+The discipline that makes it work isn't the tooling — it's keeping a clear boundary between "what runs" (the environment repo, or the `deploy/` directory) and "what's built" (the application repo). Mixing them produces PRs where a bug fix also changes deployment configuration, and the blast radius of both changes becomes unclear.
 
-## IaC: reduce snowflakes and surprise drift
+Separating these also makes rollback explicit: "revert the environment repo commit" is a single, documented action.
 
-Infrastructure-as-code is not only provisioning; it’s lifecycle management:
+## IaC: lifecycle management over one-time provisioning
 
-- Pin providers and modules
-- Separate state per environment
-- Run drift detection and policy checks in CI
+Terraform and Pulumi are often adopted to provision infrastructure once, then essentially abandoned for ad-hoc changes made in the console. This defeats the purpose.
 
-Prefer composable modules over mega-modules, and make inputs explicit.
+The value is the lifecycle: drift detection catches console changes before they cause incidents. State management per environment prevents a staging change from affecting production. Pin providers and modules — unpinned versions silently upgrade and break things.
 
-## Observability: answer “what changed?” quickly
+```hcl
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+  backend "s3" {
+    bucket = "your-tf-state"
+    key    = "prod/terraform.tfstate"
+    region = "eu-west-1"
+  }
+}
+```
 
-Focus on a few high-signal signals:
+Separate state files per environment. Separate workspaces or directories for staging vs production. The blast radius of a `terraform apply` should be bounded by convention, not just care.
 
-- Logs with request IDs and meaningful error context
-- Metrics for saturation, errors, latency, and throughput
-- Traces across service boundaries
+## Observability: answer "what changed?" first
 
-Tie these to SLOs so alerts represent user impact, not noise.
+When something breaks in production, the first question is almost always "what changed recently?" The second is "what's different now?"
 
-## Automation: remove toil, don’t create surprise
+Structure your observability around these questions: deployment events correlated with metrics (did error rate spike after this deploy?), structured logs with request context (trace ID, user, tenant), and dashboards that surface the signals on-call actually uses, not everything that can be emitted.
 
-Automate repeatable workflows:
-
-- Provisioning and access requests
-- Dependency updates
-- Release notes and versioning
-
-Make automation auditable and reversible.
+SLOs are the discipline that keeps alert noise down. An alert that fires when a metric crosses an arbitrary threshold wakes someone up. An alert that fires when users are experiencing a degradation they care about is worth waking someone up for.
 
 ## References
 

@@ -1,0 +1,62 @@
+---
+title: "Hands-on first: a different perspective on working with LLMs"
+description: Build the base yourself, set the rules, then delegate the polish. Why letting the model drive from a blank page consistently produces code you don't fully own.
+date: "2026-03-28"
+tags: ["AI", "LLM", "Developer Productivity", "Workflow", "Claude Code"]
+---
+
+## The default is backwards
+
+Most people's first instinct with an AI coding tool: describe what you want and let the model build it. Blank file, detailed prompt, cross fingers.
+
+The output is often plausible. It's also frequently wrong in ways that are hard to see — wrong architectural assumptions, wrong abstraction level, naming that doesn't fit the codebase, patterns that looked reasonable in isolation but conflict with something in a file the model didn't have in context.
+
+And because you didn't build it, you don't fully understand it yet. Fixing the wrong parts is slow work when you're still learning the shape of what was generated.
+
+I've inverted this. Build the base manually, then delegate.
+
+## Phase one: do the thinking yourself
+
+The first 20–30% of any new module or feature, I write by hand. Not because the model couldn't — but because this is where the real decisions are:
+
+- How should this data be shaped?
+- What abstraction level is appropriate here — a function, a class, a module?
+- Where does this fit in the existing structure?
+- What does this boundary need to expose, and what should it hide?
+
+Doing this by hand forces clarity. It's the difference between having a vague idea and actually understanding what you're building. The model is a poor substitute for this thinking phase — it will make confident choices and you'll accept them without fully realizing why they were made.
+
+The 20-30% isn't arbitrary. It's enough to establish the shape: a skeleton with real signatures, the data model, the module boundary, a few representative methods that demonstrate the pattern. Everything subsequent is filling in the pattern.
+
+## Phase two: write the rules
+
+Before handing work to an AI agent, write down the constraints it needs to follow. In Claude Code, this lives in `CLAUDE.md`. In a one-off session, it's the preamble to your request.
+
+Be specific in a way that removes ambiguity:
+
+```
+- No direct Eloquent queries outside the repository layer
+- Error handling is the caller's responsibility — functions throw, they don't catch
+- All DB access methods should accept $with[] for eager loading
+- Follow the naming convention in ArticleRepository.php
+```
+
+Vague constraints ("keep it clean", "follow existing patterns") produce vague results. The model follows explicit, checkable rules well. It guesses poorly when you leave things open to interpretation.
+
+The rule-writing step also forces you to articulate what you actually want. More than once, writing down the constraints has revealed that my mental model was underspecified — not a failure of the AI, a failure of my own clarity.
+
+## Phase three: delegate with a real target
+
+With skeleton code in place and rules defined, delegation works reliably. The model has structure to follow, constraints to respect, and existing code to match patterns against. The task is bounded.
+
+"Implement the remaining methods following the pattern of `findBySlug`, keeping the same eager loading and error handling approach" is a well-scoped request. The output fits. It's reviewable because you understand the container it lives in.
+
+This is where the speed advantage actually materializes. Not in generating code from scratch — in filling in a pattern you've established.
+
+## Why this matters beyond code quality
+
+LLMs are better editors than authors. Given structure, context, and constraints, they produce usable output. Given a blank page and an underspecified goal, they produce something that looks right until it's tested against reality.
+
+The more practical reason: code you didn't build is code you don't fully understand. With fully automated generation, you can end up maintaining a codebase you know at a surface level — you know what it does but not why the decisions were made. That's fine for isolated utilities. It's a problem for core business logic you'll need to debug at 2am.
+
+Build first, delegate second. You'll spend less time reviewing and more time using the results.

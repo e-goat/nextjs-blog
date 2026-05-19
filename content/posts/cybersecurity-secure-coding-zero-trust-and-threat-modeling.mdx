@@ -1,62 +1,65 @@
 ---
-title: "Zero trust and threat modeling"
-description: A short approach to reducing risk in everyday engineering work without slowing delivery to a crawl.
+title: "Security as blast-radius reduction"
+description: Zero trust, threat modeling, and secure coding practices — framed not as a checklist but as a way of thinking about how badly things can go wrong.
 date: "2025-10-12"
 tags: ["Security", "Secure Coding", "Zero Trust", "Threat Modeling", "AppSec"]
 ---
 
-## Secure coding starts with defaults
+## The mental model shift
 
-The safest code is the code you don’t have to remember to secure:
+Most security thinking is defensive in the "build walls" sense: validate inputs, add auth checks, scan dependencies. This is necessary. It's not sufficient.
 
-- Validate inputs at boundaries (API, jobs, webhooks)
-- Encode outputs based on context (HTML, SQL, shell)
-- Use parameterized queries and safe serializers
-- Centralize auth and authorization checks
+The more useful frame is blast radius. Not "can an attacker get in?" but "if they get in, what can they reach?" A compromised credential that only accesses a read-only reporting database is a bad day. A compromised credential with admin access to production and the ability to read secrets is a catastrophe.
 
-Treat “security bugs” as logic bugs that happen to have higher impact.
+Blast-radius thinking produces different decisions. You separate environments even when a single environment would be easier. You give services the minimum permissions they need, not the permissions that are convenient. You put the most sensitive data behind an extra authentication step even when users won't love it.
 
-Example (parameterized queries avoid injection):
+## The defaults that actually help
+
+Safe code is code you don't have to actively remember to secure. Every time a developer has to remember to escape output or parameterize a query, there's a chance they forget. Build the safe path into the tools and conventions:
 
 ```ts
+// The query library forces parameterization — you can't accidentally interpolate
 await db.query("SELECT * FROM users WHERE id = $1", [userId])
 ```
 
-## Zero trust is identity and verification, everywhere
+The same principle applies to output encoding, auth middleware, and serialization. If the safe path is the default, you're not relying on individual vigilance.
 
-Zero trust is not a product. It’s a pattern:
+For authorization, centralize the checks. A pattern where every endpoint independently checks permissions means a new endpoint is one missing check away from a privilege escalation bug. A pattern where authorization is enforced by middleware or a policy object means a missing check is obvious.
 
-- Authenticate every request (service-to-service included)
-- Authorize with least privilege and strong segmentation
-- Assume the network is hostile and credentials can leak
+## Zero trust is about verification density
 
-Focus on reducing blast radius: separate data, separate roles, separate environments.
+Zero trust isn't a product you buy or a network topology. It's the practice of verifying identity and authorization on every request, at every boundary, without assuming anything is trustworthy because it's "internal."
 
-## Threat modeling: keep it lightweight and continuous
+Practically:
+- Service-to-service calls need authentication (mTLS, signed JWTs, workload identity)
+- Tokens should be short-lived and scoped to the minimum capability needed
+- "The database is on a private network" is not the same as "the database is protected"
 
-You don’t need a long workshop to get value. For each feature, answer:
+Separate roles per environment. A service account that can read production data should not be the same credential you use in staging. When credentials leak — and they do — blast radius is the variable you control.
 
-- What are we protecting (data, money movement, admin actions)?
-- Who might attack (curious user, competitor, insider, bot)?
-- Where are the trust boundaries (browser to API, API to DB, third parties)?
-- What’s the worst realistic failure?
+## Threat modeling without the workshop
 
-## Controls that pay off quickly
+Formal threat modeling sessions are valuable. They're also slow and happen infrequently. A lightweight version embedded in the engineering workflow is more useful:
 
-High leverage practices:
+For any new feature, ask four questions before writing the first line:
+1. What are we protecting? (data, money, admin capabilities)
+2. Who might attack this, and what do they already have access to?
+3. Where do trust boundaries cross? (browser → API, API → database, third-party webhook → your system)
+4. What's the worst realistic failure, and how bad is it?
 
-- Dependency scanning and upgrade automation
-- Secret detection in CI
-- Security headers and CSP where applicable
-- Rate limiting and abuse detection for public endpoints
+The answers don't need to be perfect. They need to surface the assumptions you're making before they become incidents.
 
-## Incident readiness is part of security
+## High-leverage controls
 
-Assume you will have incidents. Prepare:
+Given limited time, these compound the most:
 
-- Structured logs with enough context to investigate
-- Runbooks for common issues (credential leak, suspicious auth)
-- A clear on-call and escalation path
+**Secret detection in CI** — blocks credentials from entering source history before they proliferate. A secret in git is a secret you have to rotate everywhere it was ever deployed.
+
+**Dependency scanning with auto-update PRs** — most breaches involving open-source dependencies exploit vulnerabilities with patches that existed months before the breach.
+
+**Rate limiting on public endpoints** — not primarily for DDoS (that's a different problem), but for credential stuffing and enumeration attacks that are quiet enough to evade simple monitoring.
+
+**Structured logging with security context** — you can't investigate an incident from logs that don't contain the user, the action, and the relevant identifiers. Add these from the start.
 
 ## References
 

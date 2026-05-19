@@ -1,0 +1,123 @@
+---
+title: "tmux, psmux, and managing multiple agents in a terminal"
+description: Terminal multiplexing was already useful. With several AI agents running tasks concurrently across different repos, it's become essential to how I work.
+date: "2026-05-08"
+tags: ["tmux", "psmux", "Terminal", "AI Tools", "Developer Productivity", "Workflow"]
+---
+
+## The problem with tabs
+
+Running one AI agent is straightforward: open a terminal, start a session, give it a task. Running several in parallel — different features, different repos, different contexts — breaks down quickly with the naive approach.
+
+Multiple terminal tabs work until you lose track of which is which. One agent runs a long compilation and you want to check another without interrupting it. You disconnect from SSH and everything in progress is gone. The tab count reaches fifteen and the window titles are useless.
+
+tmux solves the persistence and navigation problem. psmux solves the setup speed problem.
+
+## tmux fundamentals
+
+tmux runs a server process that holds sessions independent of your terminal connection. Disconnect — intentionally or not — and the session keeps running:
+
+```bash
+tmux new -s auth-rework          # named session
+# start an agent, kick off a task...
+Ctrl+b d                         # detach — session stays alive
+tmux attach -t auth-rework       # reattach from anywhere
+```
+
+For parallel agents, windows and panes are the layout units:
+
+```bash
+Ctrl+b c         # new window in current session
+Ctrl+b %         # split current pane vertically
+Ctrl+b "         # split current pane horizontally
+Ctrl+b <arrow>   # navigate between panes
+Ctrl+b z         # zoom focused pane to full screen (toggle)
+```
+
+A typical layout when running two agents: one pane per agent, a third pane for watching logs or running auxiliary commands. Zoom in when something needs close attention, zoom out to monitor both.
+
+## Session and window naming
+
+With multiple sessions running, naming is the difference between clarity and chaos:
+
+```bash
+tmux new -s "feat/payments-v2"
+tmux new -s "bugfix/auth-timeout"
+tmux new -s "infra/terraform-migrate"
+```
+
+```bash
+tmux ls                    # list all sessions with window count and activity
+Ctrl+b s                   # interactive session picker with preview
+Ctrl+b $                   # rename current session
+Ctrl+b ,                   # rename current window
+```
+
+I keep one session per active workstream, named after the branch or task. Each session has three windows: the agent, a shell for running commands manually, and a log viewer or test watcher.
+
+## psmux: scripted workspace layouts
+
+psmux is a session manager that reads a YAML config and creates tmux sessions with a defined pane layout. Instead of setting up the same workspace manually each time, describe it once:
+
+```yaml
+# psmux.yaml
+sessions:
+  - name: blog
+    root: ~/Projects/blog
+    windows:
+      - name: agent
+        panes:
+          - shell_command: claude
+      - name: dev
+        panes:
+          - shell_command: npm run dev
+      - name: shell
+        panes:
+          - shell_command: ""
+```
+
+```bash
+psmux start psmux.yaml
+```
+
+One command recreates the full workspace. For projects you return to often, a `psmux.yaml` in the repo root is the equivalent of a dev environment readme that actually runs.
+
+With multiple agents across multiple repos, this is the difference between a two-second setup and a two-minute one.
+
+## Multi-agent patterns that work
+
+**Parallel independent tasks** — separate agents on separate features or repos, no shared state between them. Check in on each periodically. tmux's session list becomes the task board.
+
+**Sequential pipeline** — one agent generates, a second reviews or extends. They run in separate panes, communicating through files or shared git state. The workflow is: agent A writes, you review, hand off to agent B with the relevant context.
+
+**Agent + live monitor** — agent runs in one pane, test suite or build output runs in another with `watch` or a file watcher. You see failures appear in real time without switching focus.
+
+```bash
+# Run tests continuously while the agent works
+watch -n 2 npm test
+
+# Or stream logs from a running process
+tail -f logs/dev.log
+```
+
+## Logging long sessions
+
+For tasks that run for minutes or hours, tmux's pipe-pane captures output to a file:
+
+```bash
+Ctrl+b :pipe-pane -o 'cat >> ~/logs/agent-$(date +%Y%m%d-%H%M).log'
+```
+
+Toggle it off with the same command. The log is reviewable after the fact, which matters when an agent takes an unexpected path and you want to understand what happened.
+
+## The limits
+
+tmux doesn't solve the context problem. Each agent session is independent — agents don't know what other agents are doing. For work that requires coordination between agents (one builds on what another produces), you're still the integration layer.
+
+The persistent session model is the core value: start work, detach, come back. No lost context, no re-explaining state to an agent, no restarting because you closed the laptop. With long-running agent tasks that span hours of real time, that persistence is what makes the workflow viable.
+
+## References
+
+- [tmux wiki and documentation](https://github.com/tmux/tmux/wiki)
+- [psmux](https://github.com/nicholasgasior/psmux)
+- [tmux cheatsheet](https://tmuxcheatsheet.com/)

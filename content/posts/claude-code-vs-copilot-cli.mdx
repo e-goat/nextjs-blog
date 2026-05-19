@@ -1,0 +1,59 @@
+---
+title: "Epic duel: Claude Code vs GitHub Copilot CLI"
+description: Two AI-powered CLI tools, two fundamentally different philosophies. Here's what using both actually feels like and why comparing them directly misses the point.
+date: "2026-04-15"
+tags: ["AI Tools", "Claude Code", "GitHub Copilot", "Developer Productivity", "CLI"]
+---
+
+## They're not the same product
+
+When people pit Claude Code against GitHub Copilot CLI, the implicit assumption is that they're competing for the same job. They aren't. These tools have different goals, different interaction models, and different definitions of "helpful" — and conflating them leads to using both badly.
+
+Copilot CLI is a command suggestion tool. You describe what you want in natural language, it gives you the shell command. `gh copilot suggest "find all files larger than 100MB"` outputs `find . -size +100M -type f`. That's the product. Focused, fast, rarely wrong on common tasks.
+
+Claude Code is an agent. It reads files, edits code, runs commands, runs tests, and operates across multiple steps toward a goal. You give it an objective, not a query.
+
+## Where Copilot CLI earns its place
+
+For shell command lookup, Copilot CLI is frictionless:
+
+```bash
+gh copilot explain "awk '{sum+=$1} END {print sum}'"
+```
+
+The `explain` mode is genuinely underrated. Paste cryptic one-liners from Stack Overflow and get plain-English breakdowns. No project context needed, no agent session to initialize.
+
+`gh copilot suggest` is best for the commands you use infrequently enough to forget the exact syntax: `tar` with the right flags, `rsync` across hosts, `jq` expressions on nested JSON, `find` with chained conditions. It drops the result into your shell history and gets out of the way.
+
+The key characteristic: Copilot CLI is stateless. It knows nothing about your codebase and doesn't pretend to. For ephemeral shell questions, that's fine.
+
+## Where Claude Code changes the game
+
+Claude Code operates at a fundamentally different level. The interaction isn't "what's the command for X?" — it's doing the work.
+
+```
+> the payment webhook handler is timing out under load. profile it, identify the bottleneck, and fix it without breaking the existing test suite
+```
+
+It reads the handler. It understands the existing patterns. It looks at the tests. It makes changes. It runs the tests. It surfaces the results. For complex, multi-file work, this gap is enormous.
+
+The `CLAUDE.md` file is a capability Copilot CLI has no equivalent for. You can document your architecture, your conventions, what to avoid, which patterns to follow — and Claude Code uses that context throughout the session. It learns your codebase in the way that matters for the work you're actually doing.
+
+## The real trade-offs
+
+Copilot CLI is lower latency per interaction. For a quick shell lookup, opening a Claude Code session is overkill — the startup cost exceeds the benefit.
+
+Claude Code is slower to get going on any task because it reads context. That latency pays off on non-trivial work that spans files and requires understanding your codebase. It doesn't pay off when you need to remember a `grep` flag.
+
+The cost model is different too. Copilot CLI queries are lightweight. Claude Code sessions, especially on complex codebases with many tool calls, consume more tokens. This matters at scale.
+
+## How I actually use them together
+
+Copilot CLI for ops work, infrastructure commands, and quick shell lookups I'd otherwise Google. Claude Code for feature work, debugging, refactoring, and anything that requires understanding what the rest of the codebase is doing.
+
+The mistake is trying to pick one for everything. They're not the same bet — one is a fast reference tool, the other is a programming partner with a longer time horizon.
+
+## References
+
+- [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code)
+- [GitHub Copilot CLI](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line)

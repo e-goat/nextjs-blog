@@ -1,64 +1,69 @@
 ---
-title: "Cloud-Native and Serverless design"
-description: How to design services that scale predictably on AWS, Azure, or GCP with sensible tradeoffs.
+title: "Cloud-native and serverless: what the pitch doesn't tell you"
+description: The operational leverage is real. So are the cold starts, the surprise egress bills, and the local debugging problem. A practical view across AWS, Azure, and GCP.
 date: "2025-07-15"
 tags: ["Cloud", "AWS", "Azure", "GCP", "Serverless", "Architecture"]
 ---
 
-## Cloud-native is about operating model
+## Cloud-native is about operating model, not vendor
 
-“Cloud-native” usually means you can:
+"Cloud-native" is one of those terms that means whatever the speaker needs it to mean. The useful definition is operational: you can deploy frequently without fragile runbooks, scale horizontally when traffic changes, and recover from failures without human intervention.
 
-- Deploy frequently without fragile runbooks
-- Scale horizontally when traffic changes
-- Recover quickly from failures
+The vendor is secondary. The patterns — managed services over self-hosted infrastructure, infrastructure as code, immutable deployments, event-driven workloads — are portable across AWS, GCP, and Azure. The APIs and console differ; the thinking doesn't.
 
-It’s less about which vendor you pick and more about how you build and run software.
+## Serverless: where it actually wins
 
-## Serverless fits spiky, event-driven workloads
+Functions-as-a-service (Lambda, Cloud Functions, Azure Functions) are genuinely good for specific workloads:
 
-Serverless can be a great default when:
+- Event-driven processing where work arrives in bursts (S3 events, SQS messages, webhooks)
+- Scheduled jobs with low frequency and short duration
+- Glue code between managed services that would otherwise require a persistent server
 
-- Work arrives as events (webhooks, queue messages, schedules)
-- You want minimal infrastructure management
-- You can tolerate cold starts or mitigate them
+The billing model — pay per invocation — is the feature for these workloads. An S3 trigger that processes uploaded files ten times a day costs cents per month. A constantly-running EC2 instance sized to handle peak load costs the same whether it's processing or idle.
 
-Common pitfalls are hidden coupling and difficult local debugging. Offset that with good tracing and small functions.
+## The cold start reality
 
-Example (make operational constraints explicit in IaC):
+Cold starts are the most consistently underestimated serverless problem, and the solutions are worse than the marketing suggests.
+
+Provisioned concurrency (AWS) keeps warm instances ready — at a flat hourly cost that partially defeats the "pay per invocation" benefit. Keeping a function warm via scheduled pings is a hack that delays, not eliminates, cold starts. The real fix is being honest about which functions are latency-sensitive and whether serverless is the right model for them.
+
+Latency-sensitive request paths that must respond in under 200ms are often not good serverless candidates. Background jobs and async event processing that can absorb a 1-2 second cold start are.
+
+## Define your Lambda constraints in code
+
+Operational constraints that live only in documentation get forgotten. Put them in the infrastructure definition:
 
 ```hcl
 resource "aws_lambda_function" "handler" {
-  function_name = "api-handler"
-  timeout       = 10
+  function_name = "webhook-processor"
+  timeout       = 15
   memory_size   = 512
+
+  reserved_concurrent_executions = 100
 }
 ```
 
-## Design for failure, not perfection
+`reserved_concurrent_executions` prevents a traffic spike from consuming all available Lambda capacity in the account and starving other functions. This is a common production incident that infrastructure code prevents.
 
-Across AWS/Azure/GCP, the same resilience patterns show up:
+## IAM is application logic
 
-- Timeouts everywhere (client, server, downstream calls)
-- Retries with jitter (but only when operations are safe to retry)
-- Circuit breakers and bulkheads for noisy dependencies
-- Dead-letter queues for poisoned messages
+Identity and permissions aren't infrastructure configuration you set up once. They're part of the security design of your system and need the same review rigor as application code.
 
-## Treat IAM as part of your application
+The practical discipline:
+- One role per service, scoped to what that service actually needs
+- No cross-environment credentials (a production Lambda should not have a role that works in dev)
+- Short-lived credentials via workload identity wherever the cloud provider supports it
+- Secrets in a managed store (Secrets Manager, Secret Manager, Key Vault) — never in environment files committed to version control
 
-Security and operability depend on identity and permissions:
+## The egress bill surprise
 
-- Use least-privilege roles per service
-- Prefer short-lived credentials (workload identity)
-- Keep secrets in a managed store, not environment files
+Cloud bills have a well-known trap: egress costs. Data leaving a region or leaving the cloud provider's network is charged at rates that can be 10-50x the storage cost. Common unexpected sources:
 
-## Optimize cost like performance
+- Logs shipped from Lambda to a SIEM outside the cloud provider
+- Cross-region API calls between services in different regions
+- CDN pulling from origin in a different region than the CDN edge
 
-Cloud bills are feedback. Make them actionable:
-
-- Attribute cost by service/team (tags/labels)
-- Watch top drivers (egress, logs, idle databases)
-- Right-size and autoscale with clear SLOs
+Tag everything from day one. You can't manage costs you can't attribute to a team or service.
 
 ## References
 

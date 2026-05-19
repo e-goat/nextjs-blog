@@ -1,0 +1,133 @@
+---
+title: "DigitalOcean Droplets: a VPS is still often the right answer"
+description: Not everything needs Kubernetes or a managed PaaS. Sometimes a $6/month Droplet and a bit of setup is the fastest path to a running, maintainable production environment.
+date: "2026-02-10"
+tags: ["DigitalOcean", "VPS", "Deployment", "Infrastructure", "DevOps", "Linux"]
+---
+
+## When the cloud gets in the way
+
+AWS, GCP, and Azure are extraordinary platforms — and extraordinarily complex for anything small. If you're running a personal project, an internal tool, or a low-traffic SaaS, the operational overhead of VPC configuration, IAM policies, and managed Kubernetes can easily exceed the work of building the actual product.
+
+DigitalOcean Droplets are a VPS: a virtual machine you SSH into and control. Not glamorous. Remarkably effective for a wide range of real workloads.
+
+## First steps on a fresh Droplet
+
+Add your SSH key in the DigitalOcean console before creating the Droplet, then:
+
+```bash
+ssh root@YOUR_DROPLET_IP
+
+# Create a non-root user
+adduser martin
+usermod -aG sudo martin
+
+# Copy SSH keys to the new user
+rsync --archive --chown=martin:martin ~/.ssh /home/martin
+
+# Harden SSH
+sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+systemctl restart sshd
+
+# Basic firewall
+ufw allow OpenSSH
+ufw allow 80
+ufw allow 443
+ufw enable
+```
+
+From here, work as the non-root user. Root access over SSH is closed.
+
+## Deploying a web app
+
+For a Node.js or PHP app, Nginx as a reverse proxy and systemd for process management is the simplest reliable setup:
+
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+HTTPS via Certbot:
+
+```bash
+apt install certbot python3-certbot-nginx
+certbot --nginx -d yourdomain.com
+```
+
+Certbot handles renewal automatically. No certificate management overhead.
+
+For process management, `pm2` is the practical choice for Node apps:
+
+```bash
+npm install -g pm2
+pm2 start server.js --name myapp
+pm2 startup systemd   # auto-start on reboot
+pm2 save
+```
+
+## Managed add-ons that matter
+
+Droplets are compute. For the rest, DigitalOcean's managed offerings are worth evaluating:
+
+**Managed Databases** — Postgres and MySQL with automated backups, failover, and a connection pooler (PgBouncer) included. At $15/month for the smallest instance, this is the one I'd always opt into over managing a database on the Droplet itself. Database administration mistakes are the most painful to recover from, and backups require active management when self-hosted.
+
+**Spaces** — S3-compatible object storage with a CDN option. Works with any S3 SDK; no vendor-specific integration required.
+
+**Managed Redis** — for cache and queue backends, with persistence and failover.
+
+## A simple, auditable deploy flow
+
+For solo projects and small teams, a deploy script often beats over-engineering:
+
+```bash
+#!/bin/bash
+set -e
+
+git pull origin main
+npm ci --production
+npm run build
+pm2 restart myapp
+echo "Deployed $(git rev-parse --short HEAD)"
+```
+
+Run it over SSH from CI. Add a health check call at the end. The entire deploy is in version control and takes 30 seconds to understand.
+
+If you want more structure without full Kubernetes complexity, DigitalOcean's App Platform handles builds and deploys automatically from a git push — somewhere between a raw Droplet and a managed PaaS.
+
+## Backup strategy
+
+DigitalOcean offers automated Droplet backups (weekly, 20% of Droplet cost) and volume snapshots. For a Droplet running a database directly, use both: the managed backup for the Droplet and a cron job that dumps the database to Spaces:
+
+```bash
+# /etc/cron.daily/db-backup
+#!/bin/bash
+DATE=$(date +%Y%m%d)
+pg_dump -U postgres mydb | gzip | s3cmd put - s3://my-backups/db-${DATE}.sql.gz
+```
+
+Test restores. A backup you haven't restored from is a hypothesis, not a guarantee.
+
+## The honest limits
+
+A single Droplet is a single point of failure. Planned maintenance requires downtime. Hardware failure means recovery from a snapshot.
+
+For applications that require uptime guarantees, you need at minimum a load balancer with two Droplets behind it, or you accept that maintenance windows exist. For most early-stage products, this is an acceptable trade-off against the operational simplicity of a single server.
+
+The upgrade path is straightforward: resize the Droplet vertically as long as you can, then move to managed services for the stateful parts (database, queues), then add horizontal scale only when the load pattern requires it.
+
+## References
+
+- [DigitalOcean: Initial Server Setup](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu)
+- [Certbot documentation](https://certbot.eff.org/)
+- [DigitalOcean Managed Databases](https://www.digitalocean.com/products/managed-databases)

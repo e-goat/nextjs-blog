@@ -1,68 +1,61 @@
 ---
-title: "Cross-platform apps that still feel native"
-description: How to choose between Flutter and React Native and avoid the common delivery traps.
+title: "Cross-platform mobile: the gap between the pitch and the build"
+description: Flutter and React Native can both ship great apps. The question is where your team will hit the native boundary and how painful that will be.
 date: "2025-08-05"
 tags: ["Mobile", "Flutter", "React Native", "iOS", "Android", "Performance"]
 ---
 
-## Choose based on constraints, not ideology
+## The pitch is true, up to a point
 
-Both Flutter and React Native can work well. Your choice often comes down to:
+Write once, run on iOS and Android. In the common case — standard UI components, network calls, local storage, navigation — both Flutter and React Native make good on this promise. The productivity gain over two native codebases is real.
 
-- Team skills and existing code (Dart vs TypeScript/JS)
-- UI complexity and custom animations
-- Need for platform-specific APIs and native modules
-- Performance tolerance for heavy lists and transitions
+The pitch stops being true at the native boundary. Camera access with custom processing, Bluetooth peripherals, background audio, deep OS integrations, NFC — these require native code. And native code in a cross-platform project means two implementations, two maintenance surfaces, and a third layer of glue between them.
 
-## Flutter: strong UI control, consistent rendering
+The question to answer before choosing a framework isn't "can this framework do what I need?" It's "how much of what I need lives past the native boundary?"
 
-Flutter shines when you want:
+## Flutter: rendering ownership as a feature
 
-- Pixel-consistent UI across platforms
-- Great tooling and integrated widget model
-- Fewer surprises from platform view differences
+Flutter doesn't use platform UI components. It draws everything itself with Skia (or Impeller on newer versions). This is either a strength or a weakness depending on what you're building.
 
-The tradeoff is learning Dart and managing plugin quality.
+Strength: your app looks identical on iOS and Android. Custom animations, complex layouts, branded UI — they're consistent without platform-specific tweaks.
 
-## React Native: leverage the web ecosystem
+Weakness: you don't get platform-native behavior for free. A date picker that feels natural on iOS and a date picker that feels natural on Android are different components. Building both, or accepting that one platform's users get a slightly foreign experience, is a real choice.
 
-React Native is attractive when you:
+Dart is also a real cost if your team doesn't know it. The language is pleasant, the tooling is solid, but "we can just pick it up" consistently underestimates the time it takes to write idiomatic Dart at speed.
 
-- Already have React expertise
-- Want shared business logic with a web app
-- Need rapid iteration with a strong JS toolchain
+## React Native: the ecosystem trade-off
 
-The tradeoff is that native module boundaries can become a bottleneck if not managed carefully.
+React Native renders platform-native components. A `<Text>` on iOS is a UILabel. On Android, it's a TextView. This buys you platform-appropriate defaults and makes accessibility correct without extra work.
 
-## Delivery pitfalls to avoid
+The trade-off appears at the JavaScript bridge (or JSI in newer RN) — the point where JS and native code talk to each other. For most interactions it's invisible. For high-frequency updates, gesture handling, and camera pipelines it can be a bottleneck.
 
-Cross-platform projects fail for predictable reasons:
+The ecosystem advantage is substantial. If your team has React expertise, the mental model transfers directly. The component library ecosystem is deep. Shared business logic with a web app is genuinely achievable, not just theoretically possible.
 
-- Underestimating offline states and flaky networks
-- Letting “shared code” become tangled coupling
-- Shipping without telemetry (crash reports, app startup, navigation latency)
+## Where both frameworks fail the same way
 
-Define a clear module boundary: shared domain logic vs platform UI and platform services.
+The failure modes that aren't framework-specific:
 
-Example (React Native list perf: stable keys and lightweight rows):
+**Offline states are an afterthought.** Both frameworks make the happy path easy. Flaky connectivity, partial syncs, and offline-first behavior require deliberate design. This almost always lands late and costs more than planned.
+
+**"Shared code" becomes tangled coupling.** The promise of sharing business logic with a web app is real, but it requires explicit boundaries — shared types, pure functions, platform-agnostic abstractions. Without those boundaries, the shared layer slowly accumulates platform assumptions and becomes a liability.
+
+**List performance degrades invisibly.** A FlatList or a ListView with 500 items and complex row components will perform badly if you don't actively measure it during development. By the time users complain, the fix requires refactoring row components you thought were done.
 
 ```tsx
 <FlatList
   data={items}
   keyExtractor={(item) => item.id}
-  renderItem={({ item }) => <Row item={item} /> }
+  renderItem={({ item }) => <Row item={item} />}
+  getItemLayout={(_, index) => ({ length: ROW_HEIGHT, offset: ROW_HEIGHT * index, index })}
+  removeClippedSubviews
 />
 ```
 
-## Build for reliability
+`getItemLayout` is the most underused optimization in React Native — it lets the list skip measurement for fixed-height rows and scrolls to arbitrary positions instantly.
 
-Make the app resilient:
+## The release process deserves a service
 
-- Cache critical data and handle refresh safely
-- Add retry logic with user-visible progress
-- Use feature flags to reduce release risk
-
-Treat release automation (build signing, store metadata, rollout controls) as first-class engineering.
+Signing, provisioning profiles, store metadata, phased rollouts — this machinery is a real project. Treat it as one. Fastlane, EAS Build, or Codemagic all reduce the manual surface area significantly. The teams that struggle here are the ones that automate the CI build but leave release automation to a senior engineer's tribal knowledge.
 
 ## References
 
