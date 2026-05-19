@@ -63,7 +63,12 @@ export async function POST(req: NextRequest) {
         ? postLikes.filter((i) => i !== ip)
         : [...postLikes, ip]
 
-    writeLikes(likes)
+    try {
+        writeLikes(likes)
+    } catch (err) {
+        console.error("[likes] Failed to write likes file:", err)
+        return NextResponse.json({ error: "Failed to persist like" }, { status: 500 })
+    }
 
     return NextResponse.json({ count: likes[slug].length, liked: !alreadyLiked })
 }
