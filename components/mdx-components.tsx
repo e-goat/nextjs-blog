@@ -4,12 +4,15 @@ import Link from "next/link"
 import { FaGithub } from "react-icons/fa"
 import { CiLinkedin } from "react-icons/ci"
 import Footer from "@/components/footer"
+import { PixelGit, PixelLinkedIn } from "@/components/pixel-art"
 
 const components = {
     Image,
     Link,
     FaGithub,
     CiLinkedin,
+    PixelGit,
+    PixelLinkedIn,
     Footer,
 }
 
