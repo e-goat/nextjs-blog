@@ -10,6 +10,30 @@ export const metadata: Metadata = {
     alternates: {
         canonical: "https://mduchev.xyz",
     },
+    openGraph: {
+        type: "website",
+        locale: "en_US",
+        url: "https://mduchev.xyz",
+        siteName: "Martin Duchev",
+        title: "Martin Duchev",
+        description:
+            "Thoughts on development, architecture, and the craft of building software.",
+        images: [
+            {
+                url: "https://mduchev.xyz/github-profile.jpeg",
+                width: 460,
+                height: 460,
+                alt: "Martin Duchev",
+            },
+        ],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Martin Duchev",
+        description:
+            "Thoughts on development, architecture, and the craft of building software.",
+        images: ["https://mduchev.xyz/github-profile.jpeg"],
+    },
 }
 
 export default function Home() {

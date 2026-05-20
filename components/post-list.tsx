@@ -116,7 +116,10 @@ export function PostList({ posts }: PostListProps) {
                         <Link href={post.slug} className="block">
                             <div className="p-5 -mx-5 rounded-xl transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-indigo-900/50">
                                 <div className="flex items-baseline justify-between gap-4 mb-2">
-                                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                                    <h2
+                                        className="text-lg font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"
+                                        style={{ fontFamily: "var(--font-press-start-2p)" }}
+                                    >
                                         {post.title}
                                     </h2>
                                     <time className="text-sm text-slate-500 dark:text-slate-400 shrink-0">

@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PostProps): Promise<Metadata>
             tags: post.tags,
             images: [
                 {
-                    url: "/github-profile.jpeg",
+                    url: "https://mduchev.xyz/github-profile.jpeg",
                     width: 460,
                     height: 460,
                     alt: post.title,
@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: PostProps): Promise<Metadata>
             card: "summary_large_image",
             title: post.title,
             description: post.description,
-            images: ["/github-profile.jpeg"],
+            images: ["https://mduchev.xyz/github-profile.jpeg"],
         },
     }
 }
@@ -103,7 +103,7 @@ export default async function PostPage({ params }: PostProps) {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
             <article className="py-6 prose dark:prose-invert">
-                <h1 className="mb-2">{post.title}</h1>
+                <h1 className="mb-2" style={{ fontFamily: "var(--font-press-start-2p)" }}>{post.title}</h1>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                     {new Date(post.date).toLocaleDateString("en-US", {
                         year: "numeric",

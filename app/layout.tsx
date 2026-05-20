@@ -16,10 +16,10 @@ const pressStart2P = Press_Start_2P({
     weight: "400",
     subsets: ["latin"],
     variable: "--font-press-start-2p",
+    display: "swap",
 })
 
 export const metadata: Metadata = {
-    metadataBase: new URL("https://mduchev.xyz"),
     title: {
         default: "Martin Duchev",
         template: "%s | Martin Duchev",
@@ -28,30 +28,6 @@ export const metadata: Metadata = {
         "Martin Duchev's personal blog — thoughts on development, architecture, and the craft of building software.",
     authors: [{ name: "Martin Duchev", url: "https://mduchev.xyz" }],
     creator: "Martin Duchev",
-    openGraph: {
-        type: "website",
-        locale: "en_US",
-        url: "https://mduchev.xyz",
-        siteName: "Martin Duchev",
-        title: "Martin Duchev",
-        description:
-            "Martin Duchev's personal blog — thoughts on development, architecture, and the craft of building software.",
-        images: [
-            {
-                url: "/github-profile.jpeg",
-                width: 460,
-                height: 460,
-                alt: "Martin Duchev",
-            },
-        ],
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "Martin Duchev",
-        description:
-            "Martin Duchev's personal blog — thoughts on development, architecture, and the craft of building software.",
-        images: ["/github-profile.jpeg"],
-    },
     robots: {
         index: true,
         follow: true,
@@ -62,9 +38,6 @@ export const metadata: Metadata = {
             "max-image-preview": "large",
             "max-snippet": -1,
         },
-    },
-    alternates: {
-        canonical: "https://mduchev.xyz",
     },
 }
 
