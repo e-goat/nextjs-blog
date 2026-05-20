@@ -30,9 +30,20 @@ export async function generateMetadata({
         return {}
     }
 
+    const url = `https://mduchev.xyz/${page.slugAsParams}`
+
     return {
         title: page.title,
         description: page.description,
+        alternates: {
+            canonical: url,
+        },
+        openGraph: {
+            title: page.title,
+            description: page.description,
+            type: "website",
+            url,
+        },
     }
 }
 

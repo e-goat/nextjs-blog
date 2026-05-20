@@ -1,6 +1,16 @@
 import { allPosts } from "@/.contentlayer/generated"
 import { PostList } from "@/components/post-list"
 import Footer from "@/components/footer"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+    title: "Posts",
+    description:
+        "Thoughts on development, architecture, and the craft of building software.",
+    alternates: {
+        canonical: "https://mduchev.xyz",
+    },
+}
 
 export default function Home() {
     const posts = allPosts.map(({ _id, slug, slugAsParams, title, date, description, tags }) => ({
