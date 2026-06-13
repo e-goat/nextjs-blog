@@ -1,5 +1,5 @@
 {
-    "name": "next-contentlayer",
+    "name": "mduchev-personal-blog",
     "version": "0.1.0",
     "private": true,
     "scripts": {
@@ -19,12 +19,12 @@
         "@vercel/analytics": "^1.0.0",
         "@vercel/speed-insights": "^1.2.0",
         "autoprefixer": "10.4.14",
-        "contentlayer": "^0.3.2",
+        "contentlayer": "^0.3.3",
         "eslint": "8.39.0",
         "eslint-config-next": "13.3.1",
         "highlight.js": "^11.11.1",
-        "next": "13.4.1",
-        "next-contentlayer": "^0.3.2",
+        "next": "13.4.8",
+        "next-contentlayer": "^0.3.3",
         "next-themes": "^0.2.1",
         "postcss": "8.4.23",
         "prettier": "^3.5.3",

@@ -1,0 +1,5 @@
+ignoredBuiltDependencies:
+  - contentlayer
+  - esbuild
+  - protobufjs
+  - unrs-resolver
