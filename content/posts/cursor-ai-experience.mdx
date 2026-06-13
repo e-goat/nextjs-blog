@@ -1,6 +1,6 @@
 ---
 title: Six months with Cursor - what actually stuck
-description: An honest look at what changed in my workflow after using Cursor daily — and where the hype oversells it.
+description: An honest look at what changed in my workflow after using Cursor daily and where the hype oversells it.
 date: "2025-08-19"
 tags: ["Cursor AI", "AI Tools", "Developer Productivity", "Code Editor", "Pair Programming"]
 ---
@@ -9,21 +9,21 @@ tags: ["Cursor AI", "AI Tools", "Developer Productivity", "Code Editor", "Pair P
 
 After six months of Cursor as my primary editor, I can say clearly that it changed how I work. I can also say that the way it changed things isn't what I expected going in.
 
-The most common framing — "it's like pair programming with an AI" — sets the wrong expectations. A pair programmer pushes back, asks why you're doing something, suggests a different approach when yours is wrong. Cursor doesn't do that unless you ask. It completes what you started. It's more like an extremely fast typist who's read your entire codebase.
+The most common framing "it's like pair programming with an AI" sets the wrong expectations. A pair programmer pushes back, asks why you're doing something, suggests a different approach when yours is wrong. Cursor doesn't do that unless you ask. It completes what you started. It's more like an extremely fast typist who's read your entire codebase.
 
 That's still very useful. It just requires a different mental model.
 
 ## What I actually use daily
 
-**Tab completions for boilerplate** — this is where it earns its keep. Once you've written a few similar functions, it predicts the next one correctly most of the time. The speed gain is real and compounds over the day.
+**Tab completions for boilerplate** this is where it earns its keep. Once you've written a few similar functions, it predicts the next one correctly most of the time. The speed gain is real and compounds over the day.
 
-**Cmd+K for targeted edits** — select a function, press Cmd+K, describe the change. "Add error handling for the null case" or "rename this to match the convention in the rest of the file." For focused, bounded changes, this is faster than writing it myself and faster than a chat exchange.
+**Cmd+K for targeted edits** select a function, press Cmd+K, describe the change. "Add error handling for the null case" or "rename this to match the convention in the rest of the file." For focused, bounded changes, this is faster than writing it myself and faster than a chat exchange.
 
-**Cmd+L for understanding code** — asking "what does this function do?" on code I didn't write gives a better explanation than reading it cold, especially for complex Eloquent scopes or regex-heavy parsing logic. This is the underrated use case.
+**Cmd+L for understanding code** asking "what does this function do?" on code I didn't write gives a better explanation than reading it cold, especially for complex Eloquent scopes or regex-heavy parsing logic. This is the underrated use case.
 
 ## The rules system: overrated but still worth it
 
-`.cursorrules` is marketed as a way to make Cursor follow your project conventions automatically. The reality is that it works well for broad, easily checkable rules — "use TypeScript, not JavaScript", "functional components only" — and poorly for nuanced architectural decisions.
+`.cursorrules` is marketed as a way to make Cursor follow your project conventions automatically. The reality is that it works well for broad, easily checkable rules "use TypeScript, not JavaScript", "functional components only" and poorly for nuanced architectural decisions.
 
 What it's actually good for:
 
@@ -39,7 +39,7 @@ Rules that require contextual judgment ("don't over-abstract") get ignored in pr
 
 The context window is the real constraint, not the quality of suggestions. On a large codebase, Cursor will happily suggest code that contradicts an established pattern in a file it doesn't currently have in context. The suggestion looks correct in isolation and breaks things subtly.
 
-The fix is to manually add relevant files to context with `@filename` before asking for changes. This works, but it requires you to already know which files matter — which defeats some of the "understands your codebase" value proposition.
+The fix is to manually add relevant files to context with `@filename` before asking for changes. This works, but it requires you to already know which files matter which defeats some of the "understands your codebase" value proposition.
 
 Chat mode also has an overconfidence problem. It will give you a confident, plausible answer that's wrong about 15–20% of the time on non-trivial architectural questions. The best practice is treating every chat response as a first draft, not a decision.
 
@@ -47,7 +47,7 @@ Chat mode also has an overconfidence problem. It will give you a confident, plau
 
 The biggest change wasn't the AI suggestions. It was that I stopped writing code in silence.
 
-Cursor made it natural to externalize reasoning — "here's what I'm trying to do, here's the context" — in a way that often clarified the problem before the AI even responded. That's the same mechanism that makes rubber duck debugging work.
+Cursor made it natural to externalize reasoning "here's what I'm trying to do, here's the context" in a way that often clarified the problem before the AI even responded. That's the same mechanism that makes rubber duck debugging work.
 
 The editor is a medium. Cursor changed what that medium encourages.
 

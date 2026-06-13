@@ -1,6 +1,6 @@
 ---
 title: "SvelteKit made me rethink what a framework should feel like"
-description: Coming from React and Next.js, what surprised me about SvelteKit — the reactivity model, the routing conventions, and the one thing I still reach for React for.
+description: Coming from React and Next.js, what surprised me about SvelteKit the reactivity model, the routing conventions, and the one thing I still reach for React for.
 date: "2026-04-02"
 tags: ["SvelteKit", "Svelte", "Frontend", "JavaScript", "TypeScript", "Web Development"]
 ---
@@ -9,13 +9,13 @@ tags: ["SvelteKit", "Svelte", "Frontend", "JavaScript", "TypeScript", "Web Devel
 
 The first thing that hits when you build a SvelteKit app is how little ceremony is involved. Svelte compiles components to vanilla JavaScript at build time. There's no virtual DOM, no reconciler, no runtime library shipped to the browser. The output is small because the framework doesn't travel with it.
 
-This isn't just a performance story — it changes how you think about what the framework is doing. Svelte isn't a library you import; it's a compiler that transforms your component syntax into efficient DOM operations.
+This isn't just a performance story it changes how you think about what the framework is doing. Svelte isn't a library you import; it's a compiler that transforms your component syntax into efficient DOM operations.
 
 ## The reactivity model is the biggest shift from React
 
-In React, state requires explicit declaration and the reconciler figures out what to re-render. In Svelte, any `let` variable declared in a component is reactive — updating it triggers a DOM update.
+In React, state requires explicit declaration and the reconciler figures out what to re-render. In Svelte, any `let` variable declared in a component is reactive updating it triggers a DOM update.
 
-```svelte
+```
 <script>
     let count = 0
     $: doubled = count * 2  // recalculates whenever count changes
@@ -26,16 +26,16 @@ In React, state requires explicit declaration and the reconciler figures out wha
 </button>
 ```
 
-The `$:` syntax declares a reactive statement — it re-runs when any reactive value it depends on changes. No dependency arrays, no stale closure bugs, no `useCallback` for event handlers. This takes a few hours to fully internalize and then becomes completely natural.
+The `$:` syntax declares a reactive statement it re-runs when any reactive value it depends on changes. No dependency arrays, no stale closure bugs, no `useCallback` for event handlers. This takes a few hours to fully internalize and then becomes completely natural.
 
 The tradeoff: the mutation model feels unusual if you're used to React's immutability conventions. Svelte expects you to reassign to trigger reactivity:
 
-```svelte
+```
 <script>
     let items = []
     function addItem(item) {
         items = [...items, item]  // reassignment triggers update
-        // items.push(item)       // won't trigger — mutation doesn't
+        // items.push(item)       // won't trigger mutation doesn't
     }
 </script>
 ```
@@ -71,7 +71,7 @@ export async function load({ params }) {
 }
 ```
 
-```svelte
+```
 <!-- posts/[slug]/+page.svelte -->
 <script>
     export let data
@@ -97,7 +97,7 @@ export const user = writable(null)
 export const isLoggedIn = derived(user, $user => $user !== null)
 ```
 
-```svelte
+```
 <script>
     import { user, isLoggedIn } from '$lib/stores'
 </script>
@@ -126,7 +126,7 @@ export const actions = {
 }
 ```
 
-```svelte
+```
 <form method="POST">
     <input name="email" type="email" required />
     <button>Subscribe</button>
@@ -139,7 +139,7 @@ This works without any JavaScript on the client. Progressive enhancement with `u
 
 The ecosystem gap is real. React has years of library development in areas Svelte's ecosystem is still maturing: complex drag-and-drop, accessible date/time pickers, rich text editors, data grid components with virtual scrolling. The options exist in Svelte, but there are fewer of them and some are less battle-tested.
 
-For teams already deep in React — component libraries, shared utilities, team expertise — the migration cost needs a concrete justification beyond "it's simpler." For greenfield projects where you're choosing from scratch, SvelteKit deserves serious consideration and often wins on developer experience for anything content-heavy or form-heavy.
+For teams already deep in React component libraries, shared utilities, team expertise the migration cost needs a concrete justification beyond "it's simpler." For greenfield projects where you're choosing from scratch, SvelteKit deserves serious consideration and often wins on developer experience for anything content-heavy or form-heavy.
 
 ## References
 

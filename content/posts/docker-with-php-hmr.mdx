@@ -7,7 +7,7 @@ tags: ["Docker", "Laravel", "Vite", "HMR", "Development Environment", "DevOps"]
 
 ## What we're building
 
-Modern Laravel apps benefit from Vite for frontend bundling and Docker for isolated development environments. The challenge is making Vite's Hot Module Reloading work across the container boundary — the browser connects to a Vite dev server running inside Docker, and without the right configuration, the WebSocket connection that powers HMR won't reach it.
+Modern Laravel apps benefit from Vite for frontend bundling and Docker for isolated development environments. The challenge is making Vite's Hot Module Reloading work across the container boundary the browser connects to a Vite dev server running inside Docker, and without the right configuration, the WebSocket connection that powers HMR won't reach it.
 
 This guide sets up:
 
@@ -36,7 +36,7 @@ This guide sets up:
 
 A lightweight `node:20` image runs the Vite dev server:
 
-```dockerfile
+```
 FROM node:20
 WORKDIR /app
 COPY package*.json ./
@@ -47,7 +47,7 @@ CMD ["npm", "run", "dev"]
 
 ## PHP (Laravel) container
 
-```dockerfile
+```
 FROM php:8.3-rc-apache-buster AS base
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -226,7 +226,7 @@ With this in place, Blade views served by Laravel load JavaScript from the Vite 
 
 - Laravel templates must use `@vite` directives, not manual `<script>` tags, for HMR injection to work.
 - Set `APP_ENV=local` and `APP_DEBUG=true` in `.env` for development.
-- The Node container only handles JS/CSS — it has no knowledge of PHP routes or application state.
+- The Node container only handles JS/CSS it has no knowledge of PHP routes or application state.
 
 ## References
 

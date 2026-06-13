@@ -9,7 +9,7 @@ tags: ["TypeScript", "Database", "PostgreSQL"]
 
 Prisma's core value proposition: define your schema in one place, get type-safe database access everywhere in your codebase. No mismatches between what's in the database and what TypeScript thinks is there.
 
-```prisma
+```typescript
 model Post {
     id        Int      @id @default(autoincrement())
     title     String
@@ -32,7 +32,7 @@ const posts = await prisma.post.findMany({
 // posts: Array<Post & { author: { name: string; email: string } }>
 ```
 
-The return type is inferred from the query — not declared, not cast. Add a field to the schema, run `prisma generate`, and TypeScript immediately shows you every query that doesn't handle the new field. This is the sell, and it's real.
+The return type is inferred from the query not declared, not cast. Add a field to the schema, run `prisma generate`, and TypeScript immediately shows you every query that doesn't handle the new field. This is the sell, and it's real.
 
 ## The migration workflow
 
@@ -46,7 +46,7 @@ Prisma tracks migration history in a `_prisma_migrations` table and uses a shado
 
 The shadow database is the first gotcha: Prisma creates and destroys a temporary database to compare state. On local Postgres this is automatic. In CI with a managed database or a restricted user, you need to configure it explicitly or grant `CREATE DATABASE` permissions:
 
-```env
+```
 DATABASE_URL="postgresql://user:pass@host/mydb"
 SHADOW_DATABASE_URL="postgresql://user:pass@host/mydb_shadow"
 ```
@@ -63,7 +63,7 @@ npx prisma migrate deploy
 
 The deployment concern is coordination: migrations must run before the new application code is deployed. If code expecting a new column deploys before the migration runs, you get errors. If the migration fails partway through, the lock table needs manual clearing before future runs.
 
-For zero-downtime migrations on large tables, Prisma's migration files are plain SQL — you can edit them before running. Add `CONCURRENTLY` to index creation, split column additions from constraints. Prisma generates correct SQL; it doesn't generate migration-safe SQL for all cases.
+For zero-downtime migrations on large tables, Prisma's migration files are plain SQL you can edit them before running. Add `CONCURRENTLY` to index creation, split column additions from constraints. Prisma generates correct SQL; it doesn't generate migration-safe SQL for all cases.
 
 ## The connection model
 
@@ -83,7 +83,7 @@ export const prisma = global.prisma ?? new PrismaClient()
 if (process.env.NODE_ENV !== "production") global.prisma = prisma
 ```
 
-The global singleton pattern helps in development but doesn't solve the serverless problem — every cold Lambda start still opens connections. For serverless workloads on Postgres, add PgBouncer or Prisma Accelerate.
+The global singleton pattern helps in development but doesn't solve the serverless problem every cold Lambda start still opens connections. For serverless workloads on Postgres, add PgBouncer or Prisma Accelerate.
 
 ## N+1 is still your responsibility
 
@@ -126,17 +126,17 @@ const result = await prisma.$queryRaw<{ count: bigint }[]>`
     WHERE "createdAt" > NOW() - INTERVAL '7 days'
     AND "published" = true
 `
-// count is bigint — convert for JSON serialization
+// count is bigint convert for JSON serialization
 const count = Number(result[0].count)
 ```
 
-The return type is manual here — you lose the generated types when you drop to raw SQL. Worth containing to specific files and documenting the expected shape.
+The return type is manual here you lose the generated types when you drop to raw SQL. Worth containing to specific files and documenting the expected shape.
 
 ## The verdict
 
 Prisma is a good fit for TypeScript applications with moderately complex data models where keeping the schema and application code in sync is a real pain point. The DX in development is excellent.
 
-Know the migration workflow before you commit to it in production. Understand the connection model before deploying to serverless. Neither is a disqualifier — they're operational requirements that need handling, and handling them is documented.
+Know the migration workflow before you commit to it in production. Understand the connection model before deploying to serverless. Neither is a disqualifier they're operational requirements that need handling, and handling them is documented.
 
 ## References
 

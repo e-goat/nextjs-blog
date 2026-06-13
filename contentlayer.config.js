@@ -1,4 +1,4 @@
-import { defineDocumentType, makeSource } from "contentlayer/source-files"
+import { defineDocumentType, makeSource } from "contentlayer2/source-files"
 import { env } from "process"
 import rehypeHighlight from "rehype-highlight"
 import rehypeSlug from "rehype-slug"

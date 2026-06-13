@@ -7,7 +7,7 @@ tags: ["DigitalOcean", "VPS", "Deployment", "Infrastructure", "DevOps", "Linux"]
 
 ## When the cloud gets in the way
 
-AWS, GCP, and Azure are extraordinary platforms — and extraordinarily complex for anything small. If you're running a personal project, an internal tool, or a low-traffic SaaS, the operational overhead of VPC configuration, IAM policies, and managed Kubernetes can easily exceed the work of building the actual product.
+AWS, GCP, and Azure are extraordinary platforms and extraordinarily complex for anything small. If you're running a personal project, an internal tool, or a low-traffic SaaS, the operational overhead of VPC configuration, IAM policies, and managed Kubernetes can easily exceed the work of building the actual product.
 
 DigitalOcean Droplets are a VPS: a virtual machine you SSH into and control. Not glamorous. Remarkably effective for a wide range of real workloads.
 
@@ -42,7 +42,7 @@ From here, work as the non-root user. Root access over SSH is closed.
 
 For a Node.js or PHP app, Nginx as a reverse proxy and systemd for process management is the simplest reliable setup:
 
-```nginx
+```
 server {
     listen 80;
     server_name yourdomain.com;
@@ -80,11 +80,11 @@ pm2 save
 
 Droplets are compute. For the rest, DigitalOcean's managed offerings are worth evaluating:
 
-**Managed Databases** — Postgres and MySQL with automated backups, failover, and a connection pooler (PgBouncer) included. At $15/month for the smallest instance, this is the one I'd always opt into over managing a database on the Droplet itself. Database administration mistakes are the most painful to recover from, and backups require active management when self-hosted.
+**Managed Databases** Postgres and MySQL with automated backups, failover, and a connection pooler (PgBouncer) included. At $15/month for the smallest instance, this is the one I'd always opt into over managing a database on the Droplet itself. Database administration mistakes are the most painful to recover from, and backups require active management when self-hosted.
 
-**Spaces** — S3-compatible object storage with a CDN option. Works with any S3 SDK; no vendor-specific integration required.
+**Spaces** S3-compatible object storage with a CDN option. Works with any S3 SDK; no vendor-specific integration required.
 
-**Managed Redis** — for cache and queue backends, with persistence and failover.
+**Managed Redis** for cache and queue backends, with persistence and failover.
 
 ## A simple, auditable deploy flow
 
@@ -103,7 +103,7 @@ echo "Deployed $(git rev-parse --short HEAD)"
 
 Run it over SSH from CI. Add a health check call at the end. The entire deploy is in version control and takes 30 seconds to understand.
 
-If you want more structure without full Kubernetes complexity, DigitalOcean's App Platform handles builds and deploys automatically from a git push — somewhere between a raw Droplet and a managed PaaS.
+If you want more structure without full Kubernetes complexity, DigitalOcean's App Platform handles builds and deploys automatically from a git push somewhere between a raw Droplet and a managed PaaS.
 
 ## Backup strategy
 

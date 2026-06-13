@@ -7,7 +7,7 @@ tags: ["Laravel", "PHP", "Design Patterns", "Repository Pattern", "Clean Code", 
 
 ## The problem isn't Eloquent
 
-Controllers that query Eloquent directly aren't failing to use the right design pattern — they're failing to separate concerns. The repository pattern solves this by making data access a named, replaceable boundary. Before reaching for it, know what you're actually getting: testability, swappability, and a single place to maintain query logic.
+Controllers that query Eloquent directly aren't failing to use the right design pattern they're failing to separate concerns. The repository pattern solves this by making data access a named, replaceable boundary. Before reaching for it, know what you're actually getting: testability, swappability, and a single place to maintain query logic.
 
 If your app is simple CRUD with no complex queries, this is overhead. If you're building something that grows, it pays for itself.
 
